@@ -68,7 +68,7 @@
 </html>
 <script>
 	async function refetch(){
-		window.open('http://localhost:8081/fetch', '_blank');
+		window.open(`http://${window.location.hostname}:8081/fetch`, '_blank');
 	}
 
 
@@ -84,7 +84,7 @@
 	}
 
 	async function feedback(id, is_good) {
-		await fetch('http://localhost:8081/feedback', {
+		await fetch(`http://${window.location.hostname}:8081/feedback`, {
 			method: 'POST',
 			mode: 'no-cors',
 			body: JSON.stringify({
