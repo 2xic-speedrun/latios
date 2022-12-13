@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from ..Tweet import Tweet
+from ...shared.Tweet import Tweet
 from typing import List
 
 class Twitter(ABC):

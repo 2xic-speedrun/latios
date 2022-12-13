@@ -1,6 +1,6 @@
 import unittest
 from .Database import Database
-from .Tweet import Tweet
+from ..shared.Tweet import Tweet
 import tempfile
 
 
@@ -17,6 +17,10 @@ class TestingDatabase(unittest.TestCase):
         tweets = database.get_all(since_id=0)
         assert len(tweets) == 1
         assert tweets[0].id == 10
+
+        database.give_feedback(10, True)
+        tweets = database.get_all(since_id=0)
+        assert tweets[0].is_good == True
 
     def test_metadata_set_get(self):
         file = tempfile.NamedTemporaryFile()

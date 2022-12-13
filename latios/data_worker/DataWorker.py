@@ -17,6 +17,8 @@ class DataWorker:
 
     def update_timeline(self):
         since_id = self.database.get_metadata_key(self.last_synchronized_timeline_tweet)
+        if since_id is None:
+            since_id = 1602552509545041920
         tweets = self.twitter.fetch_timeline(
             since_id=since_id
         )

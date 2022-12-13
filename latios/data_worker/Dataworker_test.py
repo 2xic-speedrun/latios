@@ -1,6 +1,6 @@
 import unittest
 from .Database import Database
-from .Tweet import Tweet
+from ..shared.Tweet import Tweet
 from .twitter.MockTwitter import MockTwitter
 import tempfile
 from .DataWorker import DataWorker
