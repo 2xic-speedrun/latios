@@ -11,7 +11,7 @@
 	}
 
 	.content {
-		max-width: 50%;
+		max-width: 75%;
 		margin-left: auto;
 		margin-right: auto;
 	}
@@ -34,29 +34,31 @@
 		</div>
 
 		{% for tweet in tweets %}
-		<div class="card mb-3" style="max-width: 540px;">
-			<div class="row g-0">
-				<div class="col-md-2">
-					<img src="{{ tweet.profile_image_url }}" class="img-fluid rounded-start" alt="...">
+		<div class="card mb-8" style="margin-top: 5px; margin-bottom: 5px; padding-bottom: 5px; padding-top: 5px;">
+			<div class="row g-0" style="padding-bottom: 5px;">
+				<div class="col-md-2" style="margin: auto;">
+					<img src="{{ tweet.profile_image_url }}" class="img-fluid rounded-start" style="width: 100%; " alt="icon">
 				</div>
 				<div class="col-md-8">
 					<div class="card-body">
-						<p class="card-text"> {{ tweet.text }}</p>
+						<p><a href="{{ tweet.tweet_url }}">Link</a></p>
+						<p class="card-text"> {{ tweet.html_text|safe }}</p>
 					</div>
-
-					{% if tweet.is_good != None %}
-					<button type="button" onclick="feedback('{{ tweet.id }}', true)" id="{{ tweet.id }}-good"
-						class="btn btn-outline-success">+</button>
-					<button type="button" onclick="feedback('{{ tweet.id }}', false)" id="{{ tweet.id }}-bad"
-						class="btn btn-outline-warning">-</button>
-					{% else %}
-					<button type="button" onclick="feedback('{{ tweet.id }}', true)" id="{{ tweet.id }}-good"
-						class="btn btn-success">+</button>
-					<button type="button" onclick="feedback('{{ tweet.id }}', false)" id="{{ tweet.id }}-bad"
-						class="btn btn-warning">-</button>
-					{% endif %}
 				</div>
 			</div>
+			<div class="btn-group" role="group" aria-label="Basic mixed styles example" style="width: 80%; margin: auto;">
+				{% if tweet.is_good != None %}
+				<button type="button" onclick="feedback('{{ tweet.id }}', true)" id="{{ tweet.id }}-good"
+					class="btn btn-outline-success">+</button>
+				<button type="button" onclick="feedback('{{ tweet.id }}', false)" id="{{ tweet.id }}-bad"
+					class="btn btn-outline-warning">-</button>
+				{% else %}
+				<button type="button" onclick="feedback('{{ tweet.id }}', true)" id="{{ tweet.id }}-good"
+					class="btn btn-success">+</button>
+				<button type="button" onclick="feedback('{{ tweet.id }}', false)" id="{{ tweet.id }}-bad"
+					class="btn btn-warning">-</button>
+				{% endif %}
+		</div>
 		</div>
 		{% endfor %}
 		<div class="col-md-12 text-center">

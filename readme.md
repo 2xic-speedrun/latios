@@ -15,7 +15,5 @@ I just want to read good tweets, not bad tweets.
 ## TODO
 - Add the ranker service, but need data first. 
 - "Nice to have"
-  - Option to view tweet on twitter
   - Group tweets in thread together
-  - Show full link, and not twitter shortened link
   - 
