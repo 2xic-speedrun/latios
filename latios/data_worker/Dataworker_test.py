@@ -19,6 +19,10 @@ class TestingDataWorker(unittest.TestCase):
             database=database,
             twitter=twitter
         )
+        database.set_metadata_key_value(
+            data_worker.last_synchronized_timeline_tweet,
+            0
+        )
         assert 1 == data_worker.update_timeline()
         assert 0 == data_worker.update_timeline()
 

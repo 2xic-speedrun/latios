@@ -14,6 +14,7 @@
 		max-width: 75%;
 		margin-left: auto;
 		margin-right: auto;
+		margin-bottom: 50px;
 	}
 </style>
 
@@ -32,7 +33,20 @@
 		<div class="col-md-12 text-center">
 			<button type="button" class="btn btn-outline-primary" onclick="refetch()">Refresh</button>
 		</div>
-
+		<div>
+			<div class="form-check">
+				<input class="form-check-input" type="radio" name="order_by" value="id">
+				<label class="form-check-label">
+					Id
+				</label>
+				</div>
+				<div class="form-check">
+				<input class="form-check-input" type="radio" name="order_by" value="predicted_score">
+				<label class="form-check-label">
+					Predicted score
+				</label>
+			</div>
+		</div>
 		{% for tweet in tweets %}
 		<div class="card mb-8" style="margin-top: 5px; margin-bottom: 5px; padding-bottom: 5px; padding-top: 5px;">
 			<div class="row g-0" style="padding-bottom: 5px;">
@@ -69,19 +83,33 @@
 
 </html>
 <script>
+
+	window.onload = () => {
+		const url = new URL(window.location.href);
+		const order_by = url.searchParams.get("order_by");
+		if (order_by) {
+			document.querySelector(`input[name="order_by"][ value="${order_by}"]`).checked = true
+		} else {
+			document.querySelector(`input[name="order_by"][ value="id"]`).checked = true;
+		}
+	};
+
 	async function refetch(){
 		window.open(`http://${window.location.hostname}:8081/fetch`, '_blank');
 	}
 
-
 	async function next_page(){
-		var url = new URL(window.location.href);
-		var skip = url.searchParams.get("skip");
+		const url = new URL(window.location.href);
+		const order_by = document.querySelector('input[name="order_by"]:checked').value;
+		const skip = url.searchParams.get("skip");
+
 		if (skip){
 			url.searchParams.set('skip', parseInt(skip) + 10);
 		} else {
 			url.searchParams.append('skip', 10);
 		}
+		url.searchParams.set('order_by', order_by);
+
 		window.location = url.href;
 	}
 

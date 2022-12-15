@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from ..shared.Tweet import Tweet
 from typing import List
 import json
+from .SimpleQueryBuilder import SimpleQueryBuilder
 
 
 class Database:
@@ -14,20 +15,58 @@ class Database:
         with self.connection() as con:
             cur = con.cursor()
             cur.execute(
-                "CREATE TABLE IF NOT EXISTS tweets(id INTEGER PRIMARY KEY, json varchar, score int nullable);"
+                "CREATE TABLE IF NOT EXISTS tweets(id INTEGER PRIMARY KEY, json varchar, score int nullable, predicted_score int nullable);"
             )
             cur.execute(
                 "CREATE TABLE IF NOT EXISTS metadata (key varchar PRIMARY KEY, value int);"
             )
 
-    def get_all(self, since_id) -> List[Tweet]:
+        with self.connection() as con:
+            try:
+                cur.execute(
+                    "ALTER TABLE tweets ADD COLUMN predicted_score int nullable;")
+            except Exception as e:
+                pass
+
+    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None) -> List[Tweet]:
         with self.connection() as con:
             cur = con.cursor()
-            since_id = since_id if since_id is not None else 0
+            query = SimpleQueryBuilder().select(
+                "tweets"
+            )
 
-            all = cur.execute("SELECT * from tweets where id > ? order by id desc", (
-                since_id,
-            ))
+            if since_id is not None:
+                query.and_where(
+                    f"id > {since_id}"
+                )
+            if has_score is not None:
+                if has_score == True:
+                    query.and_where(
+                        f"score is not null"
+                    )
+                else:
+                    query.and_where(
+                        f"score is null"
+                    )
+            if has_predicted_score is not None:
+                if has_predicted_score == True:
+                    query.and_where(
+                        f"predicted_score is not null"
+                    )
+                else:
+                    query.and_where(
+                        f"predicted_score is null"
+                    )
+            if first is not None:
+                query.limit(first)
+            if skip is not None:
+                query.skip(skip)
+            if order_by is not None:
+                query.order_by(order_by, direction)
+
+            all = cur.execute(
+                str(query)
+            )
             return list(map(lambda tweet: Tweet(
                 tweet_object=json.loads(tweet['json']), is_good=tweet['score']), all)
             )
@@ -60,21 +99,24 @@ class Database:
                     )
                 )
 
-    def give_feedback(self, id, is_good):
+    def set_predicted_score(self, id, score):
+        with self.connection() as con:
+            cur = con.cursor()
+            cur.execute(
+                'UPDATE tweets set predicted_score = ? where id = ?', (
+                    score, id,
+                )
+            )
+
+    def set_score(self, id, is_good):
         with self.connection() as con:
             cur = con.cursor()
             score = 1 if is_good else 0
-            results = cur.execute(
+            cur.execute(
                 'UPDATE tweets set score = ? where id = ?', (
                     score, id,
                 )
             )
-            results = cur.execute(
-                'select * from tweets where id = ?', (
-                    id,
-                )
-            )
-            #print(list(results.fetchone()), (score, id))
 
     def save(self, tweet: Tweet):
         with self.connection() as con:

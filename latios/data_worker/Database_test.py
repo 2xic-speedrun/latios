@@ -18,7 +18,7 @@ class TestingDatabase(unittest.TestCase):
         assert len(tweets) == 1
         assert tweets[0].id == 10
 
-        database.give_feedback(10, True)
+        database.set_score(10, True)
         tweets = database.get_all(since_id=0)
         assert tweets[0].is_good == True
 

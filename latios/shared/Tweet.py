@@ -1,6 +1,5 @@
 import json
 
-
 class Tweet:
     def __init__(self, tweet_object, is_good=None):
         self.json = tweet_object
@@ -41,10 +40,14 @@ class Tweet:
             )
 
     def __str__(self) -> str:
-        return json.dumps({
+        return json.dumps(self.__dict__())
+
+    def __dict__(self):
+        return {
             "tweet": self.json,
             "is_good": self.is_good,
-        })
+        }
 
     def __repr__(self) -> str:
         return self.__str__()
+
