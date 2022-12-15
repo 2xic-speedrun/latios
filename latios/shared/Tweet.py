@@ -32,7 +32,7 @@ class Tweet:
             self.html_text = self.html_text[:start + moved_index] + \
                             mention_url +\
                             self.html_text[moved_index + end:]
-            moved_index += len(mention_url) - len(user)
+            moved_index += len(mention_url) - (i["end"] - i["start"])
 
         for i in self.entities.get("urls", []):
             self.html_text = self.html_text.replace(i["url"], 
