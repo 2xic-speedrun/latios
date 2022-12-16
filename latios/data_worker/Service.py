@@ -3,7 +3,8 @@ from .DataWorker import DataWorker
 from .Database import Database
 from .twitter.HttpTwitter import HttpTwitter
 import json
-from ..shared.Config import DB_NAME
+from ..shared.Config import DB_NAME, MODEL_VERSION
+from .query.Not import Not
 
 app = Flask(__name__)
 
@@ -27,6 +28,7 @@ def set_predicted_score():
 def predict_score_queue():
     dataset = Database(DB_NAME).get_all(
         has_predicted_score=False,
+        model_version=Not(MODEL_VERSION),
         first=10
     )
     return json.dumps(list(map(lambda x: x.__dict__(), dataset)))

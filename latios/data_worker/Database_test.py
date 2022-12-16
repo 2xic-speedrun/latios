@@ -2,6 +2,7 @@ import unittest
 from .Database import Database
 from ..shared.Tweet import Tweet
 import tempfile
+from .query.Not import Not
 
 
 class TestingDatabase(unittest.TestCase):
@@ -41,6 +42,24 @@ class TestingDatabase(unittest.TestCase):
         )
         metadata_value = database.get_metadata_key("last_id")
         assert metadata_value == 20
+
+    def test_get_not(self):
+        file = tempfile.NamedTemporaryFile()
+        database = Database(file.name)
+        database.save(Tweet(
+            {
+                "id": 10,
+                "text": "test tweet"
+            }
+        ))
+        tweets = database.get_all()
+        assert len(tweets) == 1
+
+        tweets = database.get_all(
+            model_version=Not(-1)
+        )
+
+        assert len(tweets) == 1
 
 
 if __name__ == '__main__':

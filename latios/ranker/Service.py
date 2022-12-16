@@ -17,13 +17,14 @@ def submit_score(id, score):
         }
     ])
 
-while True:
-    tweets = list(map(lambda x: Tweet(x["tweet"], x['is_good']), requests.get(DATA_WORKER_URL).json()))
-    count = len(tweets)
-    print(f"Scoring {count} tweets")
-    for i in tweets:
-        score = model(i.text)
-        print(i.id)
-        submit_score(i.id, score)
+if __name__ == "__main__":
+    while True:
+        tweets = list(map(lambda x: Tweet(x["tweet"], x['is_good']), requests.get(DATA_WORKER_URL).json()))
+        count = len(tweets)
+        print(f"Scoring {count} tweets")
+        for i in tweets:
+            score = model(i.text)
+            print(i.id)
+            submit_score(i.id, score)
 
-    time.sleep(30)
+        time.sleep(30)

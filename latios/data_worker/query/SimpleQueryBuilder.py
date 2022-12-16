@@ -7,17 +7,19 @@ class SimpleQueryBuilder:
         self.row_limit = ""
         self.row_skip = ""
         self.order_by_field = "id"
+        self.args = []
 
     def select(self, table):
         self.query += f"SELECT * from {table}"
         return self
     
-    def and_where(self, operator):
+    def and_where(self, operator, *args):
         if len(self.where):
             self.where.append("AND")
         self.where.append(
             operator
         )
+        self.args += args
         return self
 
     def limit(self, first):

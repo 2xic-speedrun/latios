@@ -3,7 +3,9 @@ from contextlib import contextmanager
 from ..shared.Tweet import Tweet
 from typing import List
 import json
-from .SimpleQueryBuilder import SimpleQueryBuilder
+from .query.SimpleQueryBuilder import SimpleQueryBuilder
+from .query.Not import Not
+from ..shared.Config import MODEL_VERSION
 
 
 class Database:
@@ -15,7 +17,7 @@ class Database:
         with self.connection() as con:
             cur = con.cursor()
             cur.execute(
-                "CREATE TABLE IF NOT EXISTS tweets(id INTEGER PRIMARY KEY, json varchar, score int nullable, predicted_score int nullable);"
+                "CREATE TABLE IF NOT EXISTS tweets(id INTEGER PRIMARY KEY, json varchar, score int nullable, predicted_score int nullable, model_version int nullable);"
             )
             cur.execute(
                 "CREATE TABLE IF NOT EXISTS metadata (key varchar PRIMARY KEY, value int);"
@@ -28,7 +30,14 @@ class Database:
             except Exception as e:
                 pass
 
-    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None) -> List[Tweet]:
+        with self.connection() as con:
+            try:
+                cur.execute(
+                    "ALTER TABLE tweets ADD COLUMN model_version int nullable;")
+            except Exception as e:
+                pass
+
+    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None) -> List[Tweet]:
         with self.connection() as con:
             cur = con.cursor()
             query = SimpleQueryBuilder().select(
@@ -57,6 +66,21 @@ class Database:
                     query.and_where(
                         f"predicted_score is null"
                     )
+
+            if model_version is not None:
+                if type(model_version) == int:
+                    query.and_where(
+                        "model_version = ?",
+                        model_version
+                    )
+                elif isinstance(model_version, Not):
+                    query.and_where(
+                        f"(model_version != ? or model_version is null)",
+                        model_version.value
+                    )
+                else:
+                    raise Exception("Unknown")
+
             if first is not None:
                 query.limit(first)
             if skip is not None:
@@ -65,8 +89,10 @@ class Database:
                 query.order_by(order_by, direction)
 
             all = cur.execute(
-                str(query)
-            )
+                str(query),
+                query.args
+            ).fetchall()
+
             return list(map(lambda tweet: Tweet(
                 tweet_object=json.loads(tweet['json']), is_good=tweet['score']), all)
             )
@@ -103,8 +129,8 @@ class Database:
         with self.connection() as con:
             cur = con.cursor()
             cur.execute(
-                'UPDATE tweets set predicted_score = ? where id = ?', (
-                    score, id,
+                'UPDATE tweets set predicted_score = ?, model_version=? where id = ?', (
+                    score, MODEL_VERSION, id,
                 )
             )
 
