@@ -23,6 +23,8 @@ def get_dataset():
     X = good_tweets + bad_tweets
     y = [1, ] * size + [0, ] * size
 
+    print(f"Training on {size*2} samples")
+
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.33, random_state=42
     )

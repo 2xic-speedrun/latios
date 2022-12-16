@@ -9,7 +9,7 @@ class TestingDatabase(unittest.TestCase):
     def test_save_get(self):
         file = tempfile.NamedTemporaryFile()
         database = Database(file.name)
-        database.save(Tweet(
+        database.save_tweet(Tweet(
             {
                 "id": 10,
                 "text": "test tweet"
@@ -19,7 +19,7 @@ class TestingDatabase(unittest.TestCase):
         assert len(tweets) == 1
         assert tweets[0].id == 10
 
-        database.set_score(10, True)
+        database.set_tweet_score(10, True)
         tweets = database.get_all(since_id=0)
         assert tweets[0].is_good == True
 
@@ -46,7 +46,7 @@ class TestingDatabase(unittest.TestCase):
     def test_get_not(self):
         file = tempfile.NamedTemporaryFile()
         database = Database(file.name)
-        database.save(Tweet(
+        database.save_tweet(Tweet(
             {
                 "id": 10,
                 "text": "test tweet"

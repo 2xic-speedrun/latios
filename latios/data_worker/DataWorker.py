@@ -36,7 +36,7 @@ class DataWorker:
         max_tweet_id = None
         count = 0
         for i in tweets:
-            self.database.save(i)
+            self.database.save_tweet(i)
             if max_tweet_id is None:
                 max_tweet_id = i.id
             else:

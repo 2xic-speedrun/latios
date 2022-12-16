@@ -34,10 +34,13 @@ class Tweet:
                             self.html_text[moved_index + end:]
             moved_index += len(mention_url) - (i["end"] - i["start"])
 
-        for i in self.entities.get("urls", []):
-            self.html_text = self.html_text.replace(i["url"], 
-                "<a href=\"{link}\">{link}</a>".format(link=i["expanded_url"])
+        for (short_url, expanded_url) in self.urls():
+            self.html_text = self.html_text.replace(short_url, 
+                "<a href=\"{link}\">{link}</a>".format(link=expanded_url)
             )
+
+    def urls(self):
+        return list(map(lambda i: (i["url"], i["expanded_url"]), self.entities.get("urls", [])))    
 
     def __str__(self) -> str:
         return json.dumps(self.__dict__())
