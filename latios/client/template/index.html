@@ -33,25 +33,52 @@
 		<div class="col-md-12 text-center">
 			<button type="button" class="btn btn-outline-primary" onclick="refetch()">Refresh</button>
 		</div>
-		<div>
-			<div class="form-check">
-				<input class="form-check-input" type="radio" name="order_by" value="id">
-				<label class="form-check-label">
-					Id
-				</label>
+		<div class="container">
+			<div class="row">
+				<div class="col-sm">
+					<div class="form-group">
+						<b>Order by</b>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="order_by" value="id">
+							<label class="form-check-label">
+								Id
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="order_by" value="predicted_score">
+							<label class="form-check-label">
+								Predicted score
+							</label>
+						</div>
+					</div>
 				</div>
-				<div class="form-check">
-				<input class="form-check-input" type="radio" name="order_by" value="predicted_score">
-				<label class="form-check-label">
-					Predicted score
-				</label>
+				<div class="col-sm">
+					<div class="form-group">
+						<b>Direction</b>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="direction" value="asc">
+							<label class="form-check-label">
+								ASC
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="direction" value="desc">
+							<label class="form-check-label">
+								DESC
+							</label>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
+
+
 		{% for tweet in tweets %}
 		<div class="card mb-8" style="margin-top: 5px; margin-bottom: 5px; padding-bottom: 5px; padding-top: 5px;">
 			<div class="row g-0" style="padding-bottom: 5px;">
 				<div class="col-md-2" style="margin: auto;">
-					<img src="{{ tweet.profile_image_url }}" class="img-fluid rounded-start" style="width: 100%; " alt="icon">
+					<img src="{{ tweet.profile_image_url }}" class="img-fluid rounded-start" style="width: 100%; "
+						alt="icon">
 				</div>
 				<div class="col-md-8">
 					<div class="card-body">
@@ -60,7 +87,8 @@
 					</div>
 				</div>
 			</div>
-			<div class="btn-group" role="group" aria-label="Basic mixed styles example" style="width: 80%; margin: auto;">
+			<div class="btn-group" role="group" aria-label="Basic mixed styles example"
+				style="width: 80%; margin: auto;">
 				{% if tweet.is_good != None %}
 				<button type="button" onclick="feedback('{{ tweet.id }}', true)" id="{{ tweet.id }}-good"
 					class="btn btn-outline-success">+</button>
@@ -72,15 +100,15 @@
 				<button type="button" onclick="feedback('{{ tweet.id }}', false)" id="{{ tweet.id }}-bad"
 					class="btn btn-warning">-</button>
 				{% endif %}
-		</div>
+			</div>
 		</div>
 		{% endfor %}
 		<div class="col-md-12 text-center">
+			<button type="button" class="btn btn-outline-primary" onclick="prev_page()">Prev tweets</button>
 			<button type="button" class="btn btn-outline-primary" onclick="next_page()">Next tweets</button>
 		</div>
 	</div>
 </body>
-
 </html>
 <script>
 
@@ -92,25 +120,50 @@
 		} else {
 			document.querySelector(`input[name="order_by"][ value="id"]`).checked = true;
 		}
+
+		const direction = url.searchParams.get("direction");
+		if (direction) {
+			document.querySelector(`input[name="direction"][ value="${direction}"]`).checked = true
+		} else {
+			document.querySelector(`input[name="direction"][ value="DESC"]`).checked = true;
+		}
+
+		document.querySelectorAll(`input[name="order_by"]`).forEach((item) => {
+			item.addEventListener('change', () => {
+				set_url_args();
+			})
+		})
 	};
 
-	async function refetch(){
+	async function refetch() {
 		window.open(`http://${window.location.hostname}:8081/fetch`, '_blank');
 	}
 
-	async function next_page(){
+	async function set_url_args(added_skip = 0) {
 		const url = new URL(window.location.href);
 		const order_by = document.querySelector('input[name="order_by"]:checked').value;
+		const direction = document.querySelector('input[name="direction"]:checked').value;
 		const skip = url.searchParams.get("skip");
 
-		if (skip){
-			url.searchParams.set('skip', parseInt(skip) + 10);
-		} else {
-			url.searchParams.append('skip', 10);
+		if (added_skip) {
+			if (skip) {
+				url.searchParams.set('skip', parseInt(skip) + added_skip);
+			} else {
+				url.searchParams.append('skip', 10);
+			}
 		}
 		url.searchParams.set('order_by', order_by);
-
+		url.searchParams.set('direction', direction);
+		
 		window.location = url.href;
+	}
+
+	async function prev_page() {
+		set_url_args(-10);
+	}
+
+	async function next_page() {
+		set_url_args(10);
 	}
 
 	async function feedback(id, is_good) {

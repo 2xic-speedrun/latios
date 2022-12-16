@@ -1,9 +1,9 @@
 # Latios
 Nice, and simple Tweet aggregator.
 
-I love twitter, but the timeline is a mess.
+I love twitter, but the timeline is a mess (especially in the official app).
 
-I just want to read good tweets, not bad tweets.
+Latios is an attempt to solve this by having a model learn your tweet preference, and ranking them higher based on your tweet feedback.
 
 ## How to use 
 0. `pip3 install -r requirments.txt` and add twitter tokens to `.env`
@@ -13,7 +13,6 @@ I just want to read good tweets, not bad tweets.
 4. `python3 -m latios.ranker.Train` let's you train a TfIdf model for the feedback you have given in the client.
 
 ## TODO
-- Add the ranker service, but need data first. 
 - "Nice to have"
   - Group tweets in thread together
   - i.e https://twitter.com/proofofjake_/status/1603076919800778752

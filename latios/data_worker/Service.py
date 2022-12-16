@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 from .Database import Database
 from ..shared.Config import DB_NAME
-from .query.Not import Not
 from .routes.tweets import tweet_blueprint
 from .routes.links import link_blueprint
 
