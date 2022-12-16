@@ -23,7 +23,7 @@ def fetch():
             if "twitter" in link:
                 continue
             url = urllib.parse.quote(link, safe='')
-            requests.get(DATA_WORKER_URL + f"url?url={url}")
+            requests.post(DATA_WORKER_URL + f"save_url?url={url}")
     new_id = last_queued + len(tweets)
     requests.post(DATA_WORKER_URL + f"key_value?key=last_extracted_id&value={new_id}").text
 
