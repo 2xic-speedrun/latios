@@ -1,6 +1,7 @@
 from .Database import Database
 import urllib
 from ..query.SimpleQueryBuilder import SimpleQueryBuilder
+from ...shared.Config import MODEL_VERSION
 
 class Links:
     def __init__(self, database: Database):
@@ -14,7 +15,8 @@ class Links:
                     id INTEGER PRIMARY KEY AUTOINCREMENT, 
                     url varchar NOT NULL UNIQUE,
                     score int nullable, 
-                    predicted_score REAL nullable
+                    predicted_score REAL nullable,
+                    model_version int nullable
                 );
                 """
             )
@@ -46,5 +48,15 @@ class Links:
             cur.execute(
                 'INSERT INTO links (url) values (?)', (
                     url,
+                )
+            )
+
+    def set_link_predicted_score(self, id, score):
+        print((id, score))
+        with self.database.connection() as con:
+            cur = con.cursor()
+            cur.execute(
+                'UPDATE links set predicted_score = ?, model_version=? where id = ?', (
+                    score, MODEL_VERSION, id,
                 )
             )

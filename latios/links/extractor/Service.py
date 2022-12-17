@@ -1,8 +1,8 @@
 """
-Processes tweet metadata i.e extracts links
+Extracts links from tweets
 """
-from ..shared.Config import DATA_WORKER_HOST
-from ..shared.Tweet import Tweet
+from ...shared.Config import DATA_WORKER_HOST
+from ...shared.Tweet import Tweet
 import requests
 import urllib
 

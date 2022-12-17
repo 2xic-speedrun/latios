@@ -30,9 +30,6 @@
 
 <body>
 	<div class="content">
-		<div class="col-md-12 text-center">
-			<button type="button" class="btn btn-outline-primary" onclick="refetch()">Refresh</button>
-		</div>
 		<div class="container">
 			<div class="row">
 				<div class="col-sm">
@@ -125,7 +122,7 @@
 		if (direction) {
 			document.querySelector(`input[name="direction"][ value="${direction}"]`).checked = true
 		} else {
-			document.querySelector(`input[name="direction"][ value="DESC"]`).checked = true;
+			document.querySelector(`input[name="direction"][ value="desc"]`).checked = true;
 		}
 
 		document.querySelectorAll(`input[name="order_by"]`).forEach((item) => {

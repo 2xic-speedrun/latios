@@ -69,6 +69,9 @@ class Database:
     def save_url(self, url):
         return self.links.save_url(url)
 
+    def set_link_predicted_score(self, id, score):
+        return self.links.set_link_predicted_score(id, score)
+
     @contextmanager
     def connection(self):
         con = sqlite3.connect(f"{self.filename}.db")

@@ -2,6 +2,7 @@ from ..Database import Database
 from ...shared.Config import DB_NAME
 from flask import Blueprint, request
 import json
+import sqlite3
 
 link_blueprint = Blueprint('links', __name__)
 
@@ -18,6 +19,31 @@ def fetch():
         order_by=order_by,
     )
     print(links)
+    def map_dict(item: sqlite3.Row):
+        return {
+            key: item[key] for key in item.keys()
+        }
+
     return json.dumps(
-        list(map(lambda x: x['url'], links))
+        list(map(lambda x: map_dict(x), links))
     )
+
+@link_blueprint.route('/save_url', methods=["POST"])
+def save_url():
+    url = request.args.get('url', None)
+    assert url is not None
+    Database(DB_NAME).save_url(
+        url
+    )
+    return "OK"
+
+@link_blueprint.route('/set_predict_link_score', methods=["POST"])
+def score_url():
+    data = json.loads(request.data)
+    for entry in data:
+        id = entry.get('id', None)
+        score = entry.get('score', None)
+        Database(DB_NAME).set_link_predicted_score(
+            id, score
+        )
+    return "OK"

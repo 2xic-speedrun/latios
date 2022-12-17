@@ -29,16 +29,6 @@ def set_key_value():
     )
     return "OK"
 
-
-@app.route('/save_url', methods=["POST"])
-def save_url():
-    url = request.args.get('url', None)
-    assert url is not None
-    Database(DB_NAME).save_url(
-        url
-    )
-    return "OK"
-
 if __name__ == "__main__":
     app.register_blueprint(tweet_blueprint)
     app.register_blueprint(link_blueprint)

@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from xgboost import XGBRegressor
 from sklearn.metrics import accuracy_score
-from .Model import Model
+from ..shared.Model import Model
 from ..shared.Config import DATA_WORKER_HOST
 
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/dataset"
