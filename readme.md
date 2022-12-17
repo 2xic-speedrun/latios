@@ -14,6 +14,7 @@ Latios is an attempt to solve this by having a model learn your tweet preference
 
 ## TODO
 - Improved retweet support (i.e show full text)
+- Date filter (when tweet is older than say two days, it's does not need to be at top of the score list)
 - "Nice to have"
   - Group tweets in thread together
   - i.e https://twitter.com/proofofjake_/status/1603076919800778752

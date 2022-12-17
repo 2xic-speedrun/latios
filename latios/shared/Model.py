@@ -1,5 +1,6 @@
 import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
+from .Normalizer import Normalizer
 
 class Model:
     def __init__(self, tf_idf, model) -> None:
@@ -27,6 +28,7 @@ class Model:
     
     def __call__(self, text):
         if type(text) == str:
+            text = Normalizer()(text)
             transformed = self.tf_idf.transform([text])
             return self.model.predict(transformed)[0]
         else:

@@ -33,7 +33,7 @@ def fetch():
 
     model = Model.load()
 
-    print(f"from id :{last_queued}")
+    print(f"Ranking links from id :{last_queued}")
 
     for link in links:
         text = give_me_the_text(link.url)

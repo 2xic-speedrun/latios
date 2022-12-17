@@ -16,7 +16,7 @@ def fetch():
     tweets = requests.get(DATA_WORKER_URL + f"?skip={last_queued}").json()
     tweets = list(map(lambda x: Tweet(x["tweet"], x['is_good']), tweets))
 
-    print(f"from id :{last_queued}")
+    print(f"Extracting links from id :{last_queued}")
 
     for tweet in tweets:
         for (_, link) in tweet.urls():

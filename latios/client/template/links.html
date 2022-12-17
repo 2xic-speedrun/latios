@@ -2,7 +2,7 @@
 
 <body>
     {% for link in links %}
-        <a href="{{ link }}">{{ link }}</a>
+        <a href="{{ link.url }}">{{ link.url }} (predicted_score {{link.predicted_score}})</a>
         <br>
     {% endfor %}
 
