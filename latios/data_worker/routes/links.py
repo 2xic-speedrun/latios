@@ -40,7 +40,7 @@ def save_url():
     return "OK"
 
 @link_blueprint.route('/set_predict_link_score', methods=["POST"])
-def score_url():
+def predict_score_url():
     data = json.loads(request.data)
     for entry in data:
         id = entry.get('id', None)
@@ -48,4 +48,17 @@ def score_url():
         Database(DB_NAME).set_link_predicted_score(
             id, score
         )
+    return "OK"
+
+@link_blueprint.route('/link_feedback', methods=["POST"])
+def score_url():
+    data = json.loads(request.data)
+    id = data.get('id', None)
+    score = data.get('is_good', None)
+    assert type(score) != None
+    assert type(id) != None
+    
+    Database(DB_NAME).set_link_score(
+        id, score
+    )
     return "OK"

@@ -2,6 +2,7 @@ import requests
 from ..shared.Tweet import Tweet
 from flask import Flask, render_template, request, url_for, flash, redirect
 from ..shared.Config import DATA_WORKER_HOST
+from ..shared.Link import Link
 
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/"
 app = Flask(__name__, template_folder='template')
@@ -20,7 +21,7 @@ def get_links(
     order_by
 ):
     url = DATA_WORKER_URL + "links?" + f"skip={skip}&first={first}&order_by={order_by}"
-    return list(requests.get(url).json())
+    return list(list(map(lambda x: Link(**x), requests.get(url).json())))
 
 @app.route('/')
 def tweets():

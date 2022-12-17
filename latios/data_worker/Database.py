@@ -72,6 +72,9 @@ class Database:
     def set_link_predicted_score(self, id, score):
         return self.links.set_link_predicted_score(id, score)
 
+    def set_link_score(self, id, score):
+        return self.links.set_link_score(id, score)
+
     @contextmanager
     def connection(self):
         con = sqlite3.connect(f"{self.filename}.db")

@@ -20,6 +20,10 @@ def give_me_the_text(url):
     if not has_valid_header:
         return None
 
-    html = requests.get(url).text
-    soup = BeautifulSoup(html, features="html.parser")
-    return "\n".join(list(map(lambda x: x.text, soup.find_all("p", text=True))))
+    try:
+        html = requests.get(url).text
+        soup = BeautifulSoup(html, features="html.parser")
+        return "\n".join(list(map(lambda x: x.text, soup.find_all("p", text=True))))
+    except Exception as e:
+        print(e)
+        return None

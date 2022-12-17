@@ -144,7 +144,7 @@
 
 		if (added_skip) {
 			if (skip) {
-				url.searchParams.set('skip', parseInt(skip) + added_skip);
+				url.searchParams.set('skip', Math.max(parseInt(skip) + added_skip, 0));
 			} else {
 				url.searchParams.append('skip', 10);
 			}

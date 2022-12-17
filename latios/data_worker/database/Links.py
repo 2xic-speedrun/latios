@@ -60,3 +60,13 @@ class Links:
                     score, MODEL_VERSION, id,
                 )
             )
+
+    def set_link_score(self, id, is_good):
+        with self.database.connection() as con:
+            cur = con.cursor()
+            score = 1 if is_good else 0
+            cur.execute(
+                'UPDATE links set score = ? where id = ?', (
+                    score, id,
+                )
+            )

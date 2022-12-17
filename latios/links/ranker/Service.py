@@ -44,7 +44,6 @@ def fetch():
 
     new_id = last_queued + len(links)
     requests.post(DATA_WORKER_URL + f"key_value?key={key}&value={new_id}").text
-
     
 if __name__ == "__main__":
     fetch()
