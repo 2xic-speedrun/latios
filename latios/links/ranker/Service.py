@@ -36,11 +36,14 @@ def fetch():
     print(f"Ranking links from id :{last_queued}")
 
     for link in links:
-        text = give_me_the_text(link.url)
-        if text is None:
-            continue
-        submit_score(link.id, model(text))
-        time.sleep(random.randint(3, 5))
+        try:
+            text = give_me_the_text(link.url)
+            if text is None:
+                continue
+            submit_score(link.id, model(text))
+            time.sleep(random.randint(3, 5))
+        except Exception as e:
+            print(e)
 
     new_id = last_queued + len(links)
     requests.post(DATA_WORKER_URL + f"key_value?key={key}&value={new_id}").text

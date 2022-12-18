@@ -66,6 +66,29 @@
 						</div>
 					</div>
 				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<b>Days back</b>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="last_n_days" value="1">
+							<label class="form-check-label">
+								1 day
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="last_n_days" value="7">
+							<label class="form-check-label">
+								7 days
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="last_n_days" value="all">
+							<label class="form-check-label">
+								All
+							</label>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -110,20 +133,18 @@
 <script>
 
 	window.onload = () => {
-		const url = new URL(window.location.href);
-		const order_by = url.searchParams.get("order_by");
-		if (order_by) {
-			document.querySelector(`input[name="order_by"][ value="${order_by}"]`).checked = true
-		} else {
-			document.querySelector(`input[name="order_by"][ value="id"]`).checked = true;
-		}
-
-		const direction = url.searchParams.get("direction");
-		if (direction) {
-			document.querySelector(`input[name="direction"][ value="${direction}"]`).checked = true
-		} else {
-			document.querySelector(`input[name="direction"][ value="desc"]`).checked = true;
-		}
+		set_radio_button({
+			name: "order_by", 
+			defaultValue: "id"
+		});
+		set_radio_button({
+			name: "direction", 
+			defaultValue: "desc"
+		});
+		set_radio_button({
+			name: "last_n_days", 
+			defaultValue: "all"
+		});
 
 		document.querySelectorAll(`input[name="order_by"]`).forEach((item) => {
 			item.addEventListener('change', () => {
@@ -131,6 +152,16 @@
 			})
 		})
 	};
+
+	async function set_radio_button({name, defaultValue}) {
+		const url = new URL(window.location.href);
+		const value = url.searchParams.get(name);
+		if (value) {
+			document.querySelector(`input[name="${name}"][ value="${value}"]`).checked = true
+		} else {
+			document.querySelector(`input[name="${name}"][ value="${defaultValue}"]`).checked = true;
+		}
+	}
 
 	async function refetch() {
 		window.open(`http://${window.location.hostname}:8081/fetch`, '_blank');
@@ -140,6 +171,7 @@
 		const url = new URL(window.location.href);
 		const order_by = document.querySelector('input[name="order_by"]:checked').value;
 		const direction = document.querySelector('input[name="direction"]:checked').value;
+		const last_n_days = document.querySelector('input[name="last_n_days"]:checked').value;
 		const skip = url.searchParams.get("skip");
 
 		if (added_skip) {
@@ -151,6 +183,7 @@
 		}
 		url.searchParams.set('order_by', order_by);
 		url.searchParams.set('direction', direction);
+		url.searchParams.set('last_n_days', last_n_days);
 		
 		window.location = url.href;
 	}

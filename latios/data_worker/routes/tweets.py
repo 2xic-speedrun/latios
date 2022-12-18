@@ -50,6 +50,7 @@ def timeline():
     first = int(request.args.get('first', 10))
     order_by = request.args.get('order_by', "id")
     direction = request.args.get('direction', "DESC")
+    last_n_days = request.args.get('last_n_days', None)
 
     data_worker = DataWorker(
         Database(DB_NAME),
@@ -60,6 +61,7 @@ def timeline():
         first,
         order_by,
         direction,
+        last_n_days,
     ))
 
 

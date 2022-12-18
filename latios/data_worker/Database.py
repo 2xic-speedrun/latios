@@ -21,17 +21,6 @@ class Database:
             cur = con.cursor()
             cur.execute(
                 """
-                CREATE TABLE IF NOT EXISTS tweets(
-                    id INTEGER PRIMARY KEY, 
-                    json varchar, 
-                    score int nullable, 
-                    predicted_score REAL nullable, 
-                    model_version int nullable
-                );
-                """
-            )
-            cur.execute(
-                """
                 CREATE TABLE IF NOT EXISTS metadata (
                     key varchar PRIMARY KEY, 
                     value int
@@ -39,7 +28,7 @@ class Database:
                 """
             )
 
-    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None) -> List[Tweet]:
+    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None, last_n_days=None) -> List[Tweet]:
         return self.tweets.get_all(
             since_id=since_id,
             has_score=has_score,
@@ -49,6 +38,7 @@ class Database:
             order_by=order_by,
             direction=direction,
             model_version=model_version,
+            last_n_days=last_n_days
         )
 
     def get_metadata_key(self, key):

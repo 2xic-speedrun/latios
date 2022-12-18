@@ -6,11 +6,30 @@ import json
 from ...shared.Config import MODEL_VERSION
 from typing import List
 
+
 class Tweets:
     def __init__(self, database: Database):
         self.database = database
 
-    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None) -> List[Tweet]:
+        with self.database.connection() as con:
+            cur = con.cursor()
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS tweets(
+                    id INTEGER PRIMARY KEY, 
+                    json varchar, 
+                    score int nullable, 
+                    predicted_score REAL nullable, 
+                    model_version int nullable,
+                    added_timestamp text nullable
+                );
+                """
+            )
+       # with self.database.connection() as con:
+      #      cur = con.cursor()
+      #      cur.execute("ALTER TABLE tweets add column added_timestamp text nullable;")
+
+    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None, last_n_days=None) -> List[Tweet]:
         with self.database.connection() as con:
             cur = con.cursor()
             query = SimpleQueryBuilder().select(
@@ -54,6 +73,13 @@ class Tweets:
                 else:
                     raise Exception("Unknown")
 
+            if last_n_days is not None:
+                assert type(last_n_days) == int or last_n_days.isnumeric()
+                query.and_where(
+                    # last two days of tweets
+                    f"date('now', '-{last_n_days} days') <= DATETIME(added_timestamp)",
+                )
+
             if first is not None:
                 query.limit(first)
             if skip is not None:
@@ -69,7 +95,7 @@ class Tweets:
             return list(map(lambda tweet: Tweet(
                 tweet_object=json.loads(tweet['json']), is_good=tweet['score']), all)
             )
-        
+
     def set_tweet_predicted_score(self, id, score):
         with self.database.connection() as con:
             cur = con.cursor()
@@ -98,7 +124,7 @@ class Tweets:
 
             if results is None:
                 cur.execute(
-                    'INSERT INTO tweets (id, json) values (?, ?)', (
+                    'INSERT INTO tweets (id, json, added_timestamp) values (?, ?, datetime(\'now\'))', (
                         tweet.id, json.dumps(tweet.json),
                     )
                 )
