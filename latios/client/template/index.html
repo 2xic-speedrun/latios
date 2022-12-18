@@ -129,20 +129,21 @@
 		</div>
 	</div>
 </body>
+
 </html>
 <script>
 
 	window.onload = () => {
 		set_radio_button({
-			name: "order_by", 
+			name: "order_by",
 			defaultValue: "id"
 		});
 		set_radio_button({
-			name: "direction", 
+			name: "direction",
 			defaultValue: "desc"
 		});
 		set_radio_button({
-			name: "last_n_days", 
+			name: "last_n_days",
 			defaultValue: "all"
 		});
 
@@ -153,7 +154,7 @@
 		})
 	};
 
-	async function set_radio_button({name, defaultValue}) {
+	async function set_radio_button({ name, defaultValue }) {
 		const url = new URL(window.location.href);
 		const value = url.searchParams.get(name);
 		if (value) {
@@ -183,8 +184,10 @@
 		}
 		url.searchParams.set('order_by', order_by);
 		url.searchParams.set('direction', direction);
-		url.searchParams.set('last_n_days', last_n_days);
-		
+		if (last_n_days !== "all") {
+			url.searchParams.set('last_n_days', last_n_days);
+		}
+
 		window.location = url.href;
 	}
 

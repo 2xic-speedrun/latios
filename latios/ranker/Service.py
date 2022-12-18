@@ -26,7 +26,8 @@ if __name__ == "__main__":
 
     while True:
         if 60 * 60 < (time.time() - start):
-            print("Fetched %s", fetch_more_tweets())
+            new_tweets_count = fetch_more_tweets()
+            print("Fetched {new_tweets_count} new tweets")
             start  = time.time()
 
         tweets = list(map(lambda x: Tweet(x["tweet"], x['is_good']), requests.get(DATA_WORKER_URL).json()))
