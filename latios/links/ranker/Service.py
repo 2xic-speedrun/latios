@@ -3,7 +3,7 @@ Extracts links from tweets
 """
 from ...shared.Config import DATA_WORKER_HOST
 import requests
-from ..just_give_me_text.GiveMeTheText import give_me_the_text
+from ..just_give_me_text.GiveMeTheMetadata import GiveMeTheMetadata
 from ...shared.Link import Link
 from ...shared.Model import Model
 from typing import List
@@ -12,13 +12,16 @@ import random
 
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/"
 DATA_LINKS = DATA_WORKER_URL + "links"
-SUBMIT_DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/set_predict_link_score"
+SUBMIT_DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/save_link_with_id"
 
-def submit_score(id, score):
+def submit_score(id, score, title, netloc, description):
     requests.post(SUBMIT_DATA_WORKER_URL, json=[
         {
             "id": id,
-            "score": float(score)
+            "predicted_score": float(score),
+            "netloc": netloc,
+            "title": title,
+            "description": description
         }
     ])
 
@@ -37,15 +40,25 @@ def fetch():
 
     for link in links:
         try:
-            text = give_me_the_text(link.url)
-            if text is None:
+            print(f"Checking link {link.url}")
+            metadata = GiveMeTheMetadata().get_metadata(link.url)
+            if metadata is None:
                 continue
-            submit_score(link.id, model(text))
+            score = model(metadata["text"])
+            submit_score(
+                id=link.id,
+                title=metadata["title"],
+                score=score,
+                netloc=metadata["netloc"],
+                description=metadata["text"][:300]
+            )
             time.sleep(random.randint(3, 5))
         except Exception as e:
             print(e)
 
     new_id = last_queued + len(links)
+   # if len(links) == 0:
+    #    new_id = 0
     requests.post(DATA_WORKER_URL + f"key_value?key={key}&value={new_id}").text
     
 if __name__ == "__main__":

@@ -39,14 +39,22 @@ def save_url():
     )
     return "OK"
 
-@link_blueprint.route('/set_predict_link_score', methods=["POST"])
+@link_blueprint.route('/save_link_with_id', methods=["POST"])
 def predict_score_url():
     data = json.loads(request.data)
     for entry in data:
         id = entry.get('id', None)
-        score = entry.get('score', None)
-        Database(DB_NAME).set_link_predicted_score(
-            id, score
+        predicted_score = entry.get('score', None)
+        title = entry.get('title', None)
+        netloc = entry.get('netloc', None)
+        description = entry.get('description', None)
+        assert id is not None
+        Database(DB_NAME).save_link_with_id(
+            id=id, 
+            predicted_score=predicted_score,
+            title=title,
+            netloc=netloc,
+            description=description,
         )
     return "OK"
 

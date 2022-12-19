@@ -61,6 +61,20 @@ class TestingDatabase(unittest.TestCase):
 
         assert len(tweets) == 1
 
+    def test_should_correctly_update(self):
+        file = tempfile.NamedTemporaryFile()
+        database = Database(file.name)
+        database.save_url(
+            "http://test.com/"
+        )
+        links = database.links.get_all(first=1)
+        link = links[0]
+        database.save_link_with_id(
+            id=link["id"],
+            netloc="test"
+        )
+        links = database.links.get_all(first=1)
+        assert links[0]["netloc"] == "test"
 
 if __name__ == '__main__':
     unittest.main()

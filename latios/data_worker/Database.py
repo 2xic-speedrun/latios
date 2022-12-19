@@ -59,6 +59,15 @@ class Database:
     def save_url(self, url):
         return self.links.save_url(url)
 
+    def save_link_with_id(self, id, predicted_score=None, netloc=None, title=None, description=None):
+        return self.links.save_link_with_id(
+            id=id,
+            predicted_score=predicted_score,
+            netloc=netloc,
+            title=title,
+            description=description,
+        )
+
     def set_link_predicted_score(self, id, score):
         return self.links.set_link_predicted_score(id, score)
 

@@ -92,7 +92,6 @@
 			</div>
 		</div>
 
-
 		{% for tweet in tweets %}
 		<div class="card mb-8" style="margin-top: 5px; margin-bottom: 5px; padding-bottom: 5px; padding-top: 5px;">
 			<div class="row g-0" style="padding-bottom: 5px;">
@@ -146,12 +145,6 @@
 			name: "last_n_days",
 			defaultValue: "all"
 		});
-
-		document.querySelectorAll(`input[name="order_by"]`).forEach((item) => {
-			item.addEventListener('change', () => {
-				set_url_args();
-			})
-		})
 	};
 
 	async function set_radio_button({ name, defaultValue }) {
@@ -162,10 +155,12 @@
 		} else {
 			document.querySelector(`input[name="${name}"][ value="${defaultValue}"]`).checked = true;
 		}
-	}
 
-	async function refetch() {
-		window.open(`http://${window.location.hostname}:8081/fetch`, '_blank');
+		document.querySelectorAll(`input[name="${name}"]`).forEach((item) => {
+			item.addEventListener('change', () => {
+				set_url_args();
+			})
+		})
 	}
 
 	async function set_url_args(added_skip = 0) {
