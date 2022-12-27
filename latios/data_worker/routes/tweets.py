@@ -1,9 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, current_app
 from ..DataWorker import DataWorker
 from ..Database import Database
 from ..twitter.HttpTwitter import HttpTwitter
 import json
-from ...shared.Config import DB_NAME, MODEL_VERSION
+from ...shared.Config import MODEL_VERSION
 from ..query.Not import Not
 from flask import Blueprint
 
@@ -12,16 +12,15 @@ tweet_blueprint = Blueprint('tweets', __name__)
 @tweet_blueprint.route('/fetch')
 def fetch():
     data_worker = DataWorker(
-        Database(DB_NAME),
+        Database(current_app.config["DB_NAME"]),
         HttpTwitter()
     )
     return str(data_worker.update_timeline())
 
-
 @tweet_blueprint.route('/set_predict_score', methods=["POST"])
 def set_predicted_score():
     scores = json.loads(request.data)
-    dataset = Database(DB_NAME)
+    dataset = Database(current_app.config["DB_NAME"])
     for i in scores:
         dataset.set_tweet_predicted_score(i["id"], i["score"])
     return "OK"
@@ -29,7 +28,7 @@ def set_predicted_score():
 
 @tweet_blueprint.route('/predict_score_queue')
 def predict_score_queue():
-    dataset = Database(DB_NAME).get_all(
+    dataset = Database(current_app.config["DB_NAME"]).get_all(
         #   has_predicted_score=False,
         model_version=Not(MODEL_VERSION),
         first=10
@@ -39,7 +38,7 @@ def predict_score_queue():
 
 @tweet_blueprint.route('/dataset')
 def dataset():
-    dataset = Database(DB_NAME).get_all(
+    dataset = Database(current_app.config["DB_NAME"]).get_all(
         has_score=True
     )
     return json.dumps(list(map(lambda x: x.__dict__(), dataset)))
@@ -53,7 +52,7 @@ def timeline():
     last_n_days = request.args.get('last_n_days', None)
 
     data_worker = DataWorker(
-        Database(DB_NAME),
+        Database(current_app.config["DB_NAME"]),
         HttpTwitter()
     )
     return str(data_worker.get_timeline(
@@ -68,7 +67,7 @@ def timeline():
 @tweet_blueprint.route('/feedback', methods=['POST'])
 def feedback():
     feedback = json.loads(request.data)
-    Database(DB_NAME).set_tweet_score(
+    Database(current_app.config["DB_NAME"]).set_tweet_score(
         id=int(feedback["id"]),
         is_good=feedback["is_good"]
     )

@@ -17,7 +17,8 @@ class Links:
                     url varchar NOT NULL UNIQUE,
                     score int nullable, 
                     predicted_score REAL nullable,
-                    model_version int nullable
+                    model_version int nullable,
+                    netloc text nullable
                 );
                 """
             )

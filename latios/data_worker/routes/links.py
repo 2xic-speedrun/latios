@@ -1,6 +1,5 @@
 from ..Database import Database
-from ...shared.Config import DB_NAME
-from flask import Blueprint, request
+from flask import Blueprint, request, current_app
 import json
 import sqlite3
 
@@ -13,7 +12,7 @@ def fetch():
     order_by = request.args.get('order_by', "id")
     direction = request.args.get("direction", "desc")
 
-    database = Database(DB_NAME)
+    database = Database(current_app.config["DB_NAME"])
     links = database.links.get_all(
         first=first,
         skip=skip,
@@ -34,7 +33,7 @@ def fetch():
 def save_url():
     url = request.args.get('url', None)
     assert url is not None
-    Database(DB_NAME).save_url(
+    Database(current_app.config["DB_NAME"]).save_url(
         url
     )
     return "OK"
@@ -49,7 +48,7 @@ def predict_score_url():
         netloc = entry.get('netloc', None)
         description = entry.get('description', None)
         assert id is not None
-        Database(DB_NAME).save_link_with_id(
+        Database(current_app.config["DB_NAME"]).save_link_with_id(
             id=id, 
             predicted_score=predicted_score,
             title=title,
@@ -66,7 +65,7 @@ def score_url():
     assert type(score) != None
     assert type(id) != None
     
-    Database(DB_NAME).set_link_score(
+    Database(current_app.config["DB_NAME"]).set_link_score(
         id, score
     )
     return "OK"

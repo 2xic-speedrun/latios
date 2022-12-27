@@ -94,7 +94,7 @@ if __name__ == "__main__":
                 best_model = model
         print("")
     Model(
-        tf_idf,
+        best_tfidf,
         best_model
     ).save()
 
