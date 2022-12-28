@@ -8,6 +8,7 @@ from .database.KeyValue import KeyValue
 from .database.Tweets import Tweets
 from .database.Links import Links
 
+
 class Database:
     def __init__(self, filename):
         self.filename = filename
@@ -28,7 +29,18 @@ class Database:
                 """
             )
 
-    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None, last_n_days=None) -> List[Tweet]:
+    def get_all(self,
+                since_id=None,
+                has_score=None,
+                has_predicted_score=None,
+                first=None,
+                skip=None,
+                order_by=None,
+                direction=None,
+                model_version=None,
+                last_n_days=None,
+                conversation_id=None
+                ) -> List[Tweet]:
         return self.tweets.get_all(
             since_id=since_id,
             has_score=has_score,
@@ -38,7 +50,8 @@ class Database:
             order_by=order_by,
             direction=direction,
             model_version=model_version,
-            last_n_days=last_n_days
+            last_n_days=last_n_days,
+            conversation_id=conversation_id,
         )
 
     def get_metadata_key(self, key):

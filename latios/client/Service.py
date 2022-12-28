@@ -12,10 +12,22 @@ def get_tweets(
     skip,
     first,
     order_by,
-    last_n_days
+    last_n_days,
+    conversation_id=None,
+    direction=None
 ):
     url = DATA_WORKER_URL + "?" + \
-        f"skip={skip}&first={first}&order_by={order_by}&last_n_days={last_n_days}"
+        f"skip={skip}&first={first}&order_by={order_by}"
+    if last_n_days is not None:
+        url += f"&last_n_days={last_n_days}"
+
+    if conversation_id is not None:
+        url += f"&conversation_id={conversation_id}"
+
+    if direction is not None:
+        url += f"&direction={direction}"
+
+    print(url)
     return list(map(lambda x: Tweet(x["tweet"], x['is_good']), requests.get(url).json()))
 
 
@@ -49,6 +61,13 @@ def links():
 
     return render_template(path, links=get_links(skip=skip, first=first, order_by=order_by))
 
+
+@app.route('/conversation')
+def conversation():
+    path = 'index.html'
+    conversation_id = int(request.args.get('conversation_id', 0))
+
+    return render_template(path, tweets=get_tweets(skip=0, first=10, order_by="id", direction="asc", last_n_days=None, conversation_id=conversation_id))
 
 if __name__ == "__main__":
     app.config["TEMPLATES_AUTO_RELOAD"] = True

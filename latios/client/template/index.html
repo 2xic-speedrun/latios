@@ -101,7 +101,12 @@
 				</div>
 				<div class="col-md-8">
 					<div class="card-body">
-						<p><a href="{{ tweet.tweet_url }}">Link</a></p>
+						<p>
+							<a href="{{ tweet.tweet_url }}">Link</a>
+						</p>
+						<p>
+							<a href="/conversation?conversation_id={{tweet.conversation_id}}">Conversation</a>
+						</p>
 						<p class="card-text"> {{ tweet.html_text|safe }}</p>
 					</div>
 				</div>

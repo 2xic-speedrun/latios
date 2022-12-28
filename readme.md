@@ -19,10 +19,3 @@ One of the next datasources I'm thinking of adding is something like Hackernews 
 2. `python3 -m latios.client.Service` start the web interface
 3. `python3 -m latios.ranker.Service` sets the predicted tweet score.
 4. `python3 -m latios.ranker.Train` let's you train a TfIdf model for the feedback you have given in the client.
-
-## TODO
-- "Nice to have"
-  - Improved retweet support (i.e show full text)
-  - Group tweets in thread together
-  - i.e https://twitter.com/proofofjake_/status/1603076919800778752
-

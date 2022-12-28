@@ -21,15 +21,16 @@ class Tweets:
                     score int nullable, 
                     predicted_score REAL nullable, 
                     model_version int nullable,
-                    added_timestamp text nullable
+                    added_timestamp text nullable,
+                    conversation_id INTEGER nullable
                 );
                 """
             )
-       # with self.database.connection() as con:
-      #      cur = con.cursor()
-      #      cur.execute("ALTER TABLE tweets add column added_timestamp text nullable;")
+        #with self.database.connection() as con:
+        #    cur = con.cursor()
+        #    cur.execute("ALTER TABLE tweets add column conversation_id INTEGER nullable;")
 
-    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None, last_n_days=None) -> List[Tweet]:
+    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None, last_n_days=None, conversation_id=None) -> List[Tweet]:
         with self.database.connection() as con:
             cur = con.cursor()
             query = SimpleQueryBuilder().select(
@@ -59,6 +60,12 @@ class Tweets:
                         f"predicted_score is null"
                     )
 
+            if conversation_id is not None:
+                query.and_where(
+                    "conversation_id = ?",
+                    conversation_id, 
+                )
+
             if model_version is not None:
                 if type(model_version) == int:
                     query.and_where(
@@ -86,6 +93,11 @@ class Tweets:
                 query.skip(skip)
             if order_by is not None:
                 query.order_by(order_by, direction)
+
+            print((
+                str(query),
+                query.args
+            ))
 
             all = cur.execute(
                 str(query),
@@ -124,7 +136,7 @@ class Tweets:
 
             if results is None:
                 cur.execute(
-                    'INSERT INTO tweets (id, json, added_timestamp) values (?, ?, datetime(\'now\'))', (
-                        tweet.id, json.dumps(tweet.json),
+                    'INSERT INTO tweets (id, json, added_timestamp, conversation_id) values (?, ?, datetime(\'now\'), ?)', (
+                        tweet.id, json.dumps(tweet.json), tweet.conversation_id,
                     )
                 )

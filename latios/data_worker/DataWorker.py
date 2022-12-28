@@ -15,6 +15,7 @@ class DataWorker:
                      order_by=None,
                      direction=None,
                      last_n_days=None,
+                     conversation_id=None,
         ):
         since_id = self.database.get_metadata_key(
             self.last_viewed_timeline_tweet)
@@ -25,6 +26,7 @@ class DataWorker:
             order_by=order_by,
             direction=direction,
             last_n_days=last_n_days,
+            conversation_id=conversation_id,
         )
 
     def update_timeline(self):
