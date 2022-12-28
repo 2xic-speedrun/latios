@@ -61,11 +61,17 @@ class Links:
         url = urllib.parse.unquote(url)
         with self.database.connection() as con:
             cur = con.cursor()
-            cur.execute(
-                'INSERT INTO links (url) values (?)', (
-                    url,
+            found = cur.execute("SELECT * from links where url = ?", (url, )).fetchall()
+            if len(found):
+                return found[0]                
+            else:
+                cur.execute(
+                    'INSERT INTO links (url) values (?)', (
+                        url,
+                    )
                 )
-            )
+            found = cur.execute("SELECT * from links where url = ?", (url, )).fetchall()
+            return found[0]
 
     def set_link_predicted_score(self, id, score):
         print((id, score))

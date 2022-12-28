@@ -1,5 +1,4 @@
 
-
 class Link:
     def __init__(self, **kwargs) -> None:
         self.id = kwargs["id"]
@@ -9,3 +8,7 @@ class Link:
         self.has_feedback = self.score is not None
         self.description = kwargs["description"]
         self.title = kwargs["title"]
+
+        # TODO: Add thumbnail (?)
+        # youtube can be fetched with http://www.get-youtube-thumbnail.com/
+        # static html can be taken with a headless browser

@@ -64,9 +64,10 @@ class TestingDatabase(unittest.TestCase):
     def test_should_correctly_update(self):
         file = tempfile.NamedTemporaryFile()
         database = Database(file.name)
-        database.save_url(
+        results = database.save_url(
             "http://test.com/"
         )
+        assert results["id"] == 1
         links = database.links.get_all(first=1)
         link = links[0]
         database.save_link_with_id(

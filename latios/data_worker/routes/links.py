@@ -1,9 +1,10 @@
 from ..Database import Database
-from flask import Blueprint, request, current_app
+from flask import Blueprint, request, current_app, jsonify
 import json
-import sqlite3
+from ..helper.map_dict import map_dict
 
 link_blueprint = Blueprint('links', __name__)
+
 
 @link_blueprint.route('/links')
 def fetch():
@@ -20,10 +21,6 @@ def fetch():
         direction=direction
     )
     print(links)
-    def map_dict(item: sqlite3.Row):
-        return {
-            key: item[key] for key in item.keys()
-        }
 
     return json.dumps(
         list(map(lambda x: map_dict(x), links))
@@ -33,10 +30,10 @@ def fetch():
 def save_url():
     url = request.args.get('url', None)
     assert url is not None
-    Database(current_app.config["DB_NAME"]).save_url(
+    return jsonify(map_dict(Database(current_app.config["DB_NAME"]).save_url(
         url
-    )
-    return "OK"
+    )))
+
 
 @link_blueprint.route('/save_link_with_id', methods=["POST"])
 def predict_score_url():
@@ -49,13 +46,14 @@ def predict_score_url():
         description = entry.get('description', None)
         assert id is not None
         Database(current_app.config["DB_NAME"]).save_link_with_id(
-            id=id, 
+            id=id,
             predicted_score=predicted_score,
             title=title,
             netloc=netloc,
             description=description,
         )
     return "OK"
+
 
 @link_blueprint.route('/link_feedback', methods=["POST"])
 def score_url():
@@ -64,7 +62,7 @@ def score_url():
     score = data.get('is_good', None)
     assert type(score) != None
     assert type(id) != None
-    
+
     Database(current_app.config["DB_NAME"]).set_link_score(
         id, score
     )

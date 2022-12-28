@@ -1,50 +1,43 @@
 from urllib.parse import urlparse
-import requests
 from .CheckContentType import CheckContentType
-from bs4 import BeautifulSoup
-
+import argparse
+from .html.HttpHtml import HttpHtml
+from .youtube.HttpYouTube import HttpYouTube
 
 class GiveMeTheMetadata:
     def __init__(self):
         pass
 
     def get_metadata(self, url):
-        skip_links = [
-            "youtube.com",
-            
-        ]
+        skip_links = {
+            "youtube.com": HttpYouTube().fetch_transcript,
+            "github.com": None
+        }
+
         netloc = urlparse(url).netloc.replace("www.", "")
         if netloc in skip_links:
-            return None
-        elif ".pdf" in skip_links:
+            datasource = skip_links[netloc]
+            if datasource is None:
+                return None
+            return datasource(url)
+
+        if ".pdf" in skip_links:
             return None
         elif ".zip" in skip_links:
             return None
+
         has_valid_header = CheckContentType().has_valid_header(url)
 
         if not has_valid_header:
             return None
-        soup = self.give_me_soup(url)
-        if soup is None:
-            return None
+        
+        return HttpHtml().fetch_text(url)
 
-        return {
-            "text": self.give_me_the_text(soup),
-            "title": self.give_me_title(soup),
-            "netloc": urlparse(url).netloc.replace("www", "")
-        }
-
-    def give_me_soup(self, url):
-        try:
-            html = requests.get(url).text
-            soup = BeautifulSoup(html, features="html.parser")
-            return soup
-        except Exception as e:
-            print(e)
-            return None
-
-    def give_me_title(self, soup):
-        return " ".join(list(map(lambda x: x.text, soup.find_all("title"))))
-
-    def give_me_the_text(self, soup):
-       return "\n".join(list(map(lambda x: x.text, soup.find_all("p", text=True))))
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+            prog = 'GiveMeTheMetadata'
+    )
+    parser.add_argument('-u', '--url', required=True)
+    args = parser.parse_args()
+    
+    print(GiveMeTheMetadata().get_metadata(args.url))

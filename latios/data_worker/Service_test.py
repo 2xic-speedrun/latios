@@ -31,4 +31,4 @@ def test_fetch_key_value(client):
 
 def test_submit_link(client):
     response = client.post("/save_url?url=" + urllib.parse.quote("http://google.com/"))
-    assert b"OK" in response.data
+    assert 1 == response.json["id"]
