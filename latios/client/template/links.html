@@ -10,6 +10,7 @@
 
 <body style="max-width: 50%; margin: auto;">
     <div class="row">
+        <button onclick="queueLink()">Queue link</button>
         <div class="col-sm">
             <div class="form-group">
                 <b>Order by</b>
@@ -51,6 +52,7 @@
         <div class="row g-0" style="padding-bottom: 5px;">
             <div class="col-md-8">
                 <div class="card-body">
+                    <p><a href="link_text?url={{ link.url }}">Text</a></p>
                     <p><a href="{{ link.url }}">{{link.url}}</a></p>
                     <p class="card-text"> {{ link.description }} </p>
                 </div>
@@ -127,6 +129,15 @@
         window.location = url.href;
     }
 
+    async function queueLink() {
+        const url = prompt('give me the link');
+        console.log(url);
+        await fetch(`http://${window.location.hostname}:8081/save_url?url=${url}`, {
+            method: 'POST',
+            mode: 'no-cors',
+        });
+    }
+
     async function prev_page() {
         set_url_args(-10);
     }
@@ -134,7 +145,6 @@
     async function next_page() {
         set_url_args(10);
     }
-
 
     async function feedback(id, is_good) {
         await fetch(`http://${window.location.hostname}:8081/link_feedback`, {

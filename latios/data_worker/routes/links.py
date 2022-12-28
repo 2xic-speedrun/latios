@@ -2,6 +2,7 @@ from ..Database import Database
 from flask import Blueprint, request, current_app, jsonify
 import json
 from ..helper.map_dict import map_dict
+from ...shared.Cache import Cache
 
 link_blueprint = Blueprint('links', __name__)
 
@@ -67,3 +68,15 @@ def score_url():
         id, score
     )
     return "OK"
+
+@link_blueprint.route('/link_text', methods=["GET"])
+def link_text():
+    data = request.args
+    url = data.get('url', None)
+
+    if url is None:
+        return "No url is set"
+    results = Cache().load(url)
+    if results is None:
+        return "No url cache found"
+    return results.get("text", None)

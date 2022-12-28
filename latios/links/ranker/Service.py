@@ -9,7 +9,7 @@ from ...shared.Model import Model
 from typing import List
 import time
 import random
-from ..Cache import Cache
+from ...shared.Cache import Cache
 
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/"
 DATA_LINKS = DATA_WORKER_URL + "links"
