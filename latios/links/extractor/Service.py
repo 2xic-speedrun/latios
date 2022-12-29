@@ -13,7 +13,7 @@ def fetch():
     last_queued = last_queued["value"]
     last_queued = last_queued if last_queued is not None else 0
 
-    tweets = requests.get(DATA_WORKER_URL + f"?skip={last_queued}").json()
+    tweets = requests.get(DATA_WORKER_URL + f"?skip={last_queued}&direction=asc").json()
     tweets = list(map(lambda x: Tweet(x["tweet"], x['is_good']), tweets))
 
     print(f"Extracting links from id :{last_queued}")
