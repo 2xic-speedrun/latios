@@ -1,5 +1,3 @@
-from ..shared.Tweet import Tweet
-import requests
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from xgboost import XGBRegressor
@@ -9,24 +7,12 @@ from ..shared.Config import DATA_WORKER_HOST
 from ..shared.Normalizer import Normalizer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn import svm
+from .GetDataset import get_dataset
 
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/dataset"
 
-def get_dataset(**kwargs):
-    tweets = list(map(lambda x: Tweet(x["tweet"], x['is_good']), requests.get(DATA_WORKER_URL).json()))
-
-    good_tweets = list(filter(lambda x: x.is_good == True, tweets))
-    bad_tweets = list(filter(lambda x: x.is_good == False, tweets))
-
-    size = min(len(good_tweets), len(bad_tweets))
-
-    good_tweets = good_tweets[:size]
-    bad_tweets = bad_tweets[:size]
-
-    X = good_tweets + bad_tweets
-    y = [1, ] * size + [0, ] * size
-
-    print(f"Training on {size*2} samples")
+def get_split_dataset(**kwargs):
+    X, y = get_dataset()
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.33, random_state=42
@@ -73,7 +59,7 @@ if __name__ == "__main__":
     ]
     for dataset_config in dataset_configs:
         print(dataset_config)
-        tf_idf, (X_train, X_test, y_train, y_test) = get_dataset(**dataset_config)
+        tf_idf, (X_train, X_test, y_train, y_test) = get_split_dataset(**dataset_config)
         
         models = [
             XGBRegressor(),
@@ -86,7 +72,7 @@ if __name__ == "__main__":
         for model in models:
             model.fit(X_train, y_train)
             accuracy = accuracy_score(y_test, list(map(lambda x: min(max(round(x), 0), 1), model.predict(X_test))))
-            print(f"accuracy: {accuracy}")
+            print(f"{model.__class__.__name__} -> accuracy: {accuracy}")
 
             if best_score < accuracy:
                 best_score = accuracy

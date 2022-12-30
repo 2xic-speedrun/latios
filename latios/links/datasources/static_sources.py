@@ -14,6 +14,8 @@ https://meltingasphalt.com/
 https://vitalik.ca/
 https://www.gwern.net/index
 https://openai.com/blog/
+https://people.idsia.ch/~juergen/
+http://incompleteideas.net/
 
 TODO:
 1. Crawler go to static pages
