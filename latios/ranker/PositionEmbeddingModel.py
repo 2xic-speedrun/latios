@@ -1,29 +1,59 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.optim as optim
 from .VocabEncoder import Vocab
 from .helper.train_torch_model import train, test, get_dataset_split
 
 torch.manual_seed(1)
 
+class AttentionLayer(nn.Module):
+    def __init__(self, size_in, size_out):
+        super().__init__()
+        #self.size_in, self.size_out = size_in, size_out
+
+        self.q = nn.Linear(size_in, size_out, bias=False)
+        self.k = nn.Linear(size_in, size_out, bias=False)
+        self.v = nn.Linear(size_in, size_out, bias=False)
+        #self.w = nn.Linear(size_out, size_out, bias=False)
+
+    def forward(self, x):
+        dot_attention = self.attention(
+            torch.sigmoid(self.q(x)), 
+            torch.sigmoid(self.k(x)), 
+            torch.sigmoid(self.v(x))
+        )
+        return dot_attention
+
+    def attention(self, q: torch.nn.Linear, k: torch.nn.Linear, v: torch.nn.Linear) -> torch.Tensor:
+        results = torch.softmax(
+            q @ k.T
+            /
+            k.shape[0],
+            dim=1
+        )
+        return results @ v
+
 class LinearLayer(nn.Module):
     def __init__(self, in_x, out_x):
         super(LinearLayer, self).__init__()
         self.f =  nn.Sequential(*(
-            nn.Linear(in_x, out_x),
+         #   nn.Linear(in_x, out_x),
+            AttentionLayer(in_x, out_x),
             nn.Sigmoid()
         ))
 
     def forward(self, x):
         return self.f(x)
 
-class RnnEmbeddingModel(nn.Module):
+        
+class PositionEmbeddingModel(nn.Module):
     def __init__(self,
                  embedding_dim,
                  linear_shape,
                  vocab: Vocab
                 ):
-        super(RnnEmbeddingModel, self).__init__()
+        super(PositionEmbeddingModel, self).__init__()
 
         self.word_embeddings = nn.Embedding(
             vocab.vocab_size,
@@ -31,29 +61,23 @@ class RnnEmbeddingModel(nn.Module):
             padding_idx=vocab.PADDING_IDX
         )
         self.first_linear = linear_shape[0][0]
-        self.lstm = nn.LSTM(
-            embedding_dim * 280,
-            self.first_linear,
+
+        self.mapper_layer = LinearLayer(
+            280 * embedding_dim,
+            self.first_linear
         )
+
         self.score = nn.Sequential(*(
             LinearLayer(*i)
             for i in linear_shape
         ))
 
     def forward(self, X):
-        hidden = (torch.randn(1, 1, self.first_linear),
-                  torch.randn(1, 1, self.first_linear))
-
         X = self.word_embeddings(X)
-        inputs = X.view(X.shape[0], 1, -1)
-        hidden = (torch.randn(1, 1, self.first_linear), torch.randn(1, 1, self.first_linear))
-        out, hidden = self.lstm(inputs, hidden)
-
-        row_indices = torch.arange(0, X.size(0)).long()
-        normalized_tensor = out[row_indices, :, :]
-        normalized_tensor = torch.mean(normalized_tensor, dim=1)
-
-        return self.score(normalized_tensor)
+        X = X.view(X.shape[0], -1)
+    #  print(X.shape)
+        X = self.mapper_layer(X)
+        return self.score(X)
 
 if __name__ == "__main__":
 
@@ -84,7 +108,7 @@ if __name__ == "__main__":
     docs = vocab.transform(X_train)
     
     for index, linear_shape in enumerate(model_structure):
-        model = RnnEmbeddingModel(
+        model = PositionEmbeddingModel(
             embedding_dim=8,
             vocab=vocab,
             linear_shape=linear_shape
@@ -95,5 +119,7 @@ if __name__ == "__main__":
         model.eval()
         acc = test(model, vocab.transform(X_test), y_test)
 
-        with open("embedding", "a") as file:
-            file.write(f"{index} -> {acc}\n")
+        print(index, acc)
+
+     #   with open("embedding", "a") as file:
+      #      file.write(f"{index} -> {acc}\n")
