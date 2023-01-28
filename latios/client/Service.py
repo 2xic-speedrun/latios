@@ -80,7 +80,7 @@ def conversation():
     path = 'index.html'
     conversation_id = int(request.args.get('conversation_id', 0))
 
-    return render_template(path, tweets=get_tweets(skip=0, first=10, order_by="id", direction="asc", last_n_days=None, conversation_id=conversation_id))
+    return render_template(path, tweets=get_tweets(skip=0, first=1_00, order_by="id", direction="asc", last_n_days=None, conversation_id=conversation_id))
 
 if __name__ == "__main__":
     app.config["TEMPLATES_AUTO_RELOAD"] = True

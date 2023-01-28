@@ -7,7 +7,7 @@ from ..shared.Config import MODEL_VERSION
 from .database.KeyValue import KeyValue
 from .database.Tweets import Tweets
 from .database.Links import Links
-
+from .database.LinkRelation import LinksRelation
 
 class Database:
     def __init__(self, filename):
@@ -15,6 +15,7 @@ class Database:
         self.key_value = KeyValue(self)
         self.tweets = Tweets(self)
         self.links = Links(self)
+        self.link_relation = LinksRelation(self)
         self._setupDb()
 
     def _setupDb(self):
@@ -69,8 +70,14 @@ class Database:
     def save_tweet(self, tweet: Tweet):
         return self.tweets.save_tweet(tweet)
 
-    def save_url(self, url):
-        return self.links.save_url(url)
+    def save_url(self, url, source=None):
+        results = self.links.save_url(url)
+        if source is not None:
+            self.link_relation.save(
+                targetLinkId=results['id'],
+                **source,
+            )
+        return results
 
     def save_link_with_id(self, id, predicted_score=None, netloc=None, title=None, description=None):
         return self.links.save_link_with_id(

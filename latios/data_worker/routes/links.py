@@ -36,6 +36,19 @@ def save_url():
     )))
 
 
+@link_blueprint.route('/save_url_payload', methods=["POST"])
+def save_url_payload():
+    data = json.loads(request.data)
+    url = data["url"]
+    source = data["source"]
+    assert "tweetId" in source
+    assert url is not None
+    return jsonify(map_dict(Database(current_app.config["DB_NAME"]).save_url(
+        url,
+        source,
+    )))
+
+
 @link_blueprint.route('/save_link_with_id', methods=["POST"])
 def predict_score_url():
     data = json.loads(request.data)

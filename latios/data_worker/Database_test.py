@@ -77,5 +77,19 @@ class TestingDatabase(unittest.TestCase):
         links = database.links.get_all(first=1)
         assert links[0]["netloc"] == "test"
 
+    def test_should_correctly_store_link_releation(self):
+        file = tempfile.NamedTemporaryFile()
+        database = Database(file.name)
+        results = database.save_url(
+            "http://test.com/"
+        )
+        results = database.save_url(
+            "http://homepage.com/",
+            source={
+                "linkId": results['id']
+            }
+        )
+        assert len(database.link_relation.get_all()) == 1
+    
 if __name__ == '__main__':
     unittest.main()
