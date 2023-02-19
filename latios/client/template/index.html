@@ -68,6 +68,23 @@
 				</div>
 				<div class="col-sm">
 					<div class="form-group">
+						<b>Show scored tweets</b>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="has_score" value="true">
+							<label class="form-check-label">
+								True
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="has_score" value="false">
+							<label class="form-check-label">
+								False
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm">
+					<div class="form-group">
 						<b>Days back</b>
 						<div class="form-check">
 							<input class="form-check-input" type="radio" name="last_n_days" value="1">
@@ -102,7 +119,10 @@
 				<div class="col-md-8">
 					<div class="card-body">
 						<p>
-							<a href="{{ tweet.tweet_url }}">Link</a>
+							<a href="{{ tweet.tweet_url }}">Link to Twitter</a>
+						</p>
+						<p>
+							<a href="/user?screen_name={{ tweet.username }}">User tweets</a>
 						</p>
 						<p>
 							<a href="/conversation?conversation_id={{tweet.conversation_id}}">Conversation</a>
@@ -140,15 +160,19 @@
 	window.onload = () => {
 		set_radio_button({
 			name: "order_by",
-			defaultValue: "id"
+			defaultValue: "predicted_score"
 		});
 		set_radio_button({
 			name: "direction",
 			defaultValue: "desc"
 		});
 		set_radio_button({
+			name: "has_score",
+			defaultValue: "false"
+		});
+		set_radio_button({
 			name: "last_n_days",
-			defaultValue: "all"
+			defaultValue: "1"
 		});
 	};
 
@@ -173,6 +197,7 @@
 		const order_by = document.querySelector('input[name="order_by"]:checked').value;
 		const direction = document.querySelector('input[name="direction"]:checked').value;
 		const last_n_days = document.querySelector('input[name="last_n_days"]:checked').value;
+		const show_has_score = document.querySelector('input[name="has_score"]:checked').value;
 		const skip = url.searchParams.get("skip");
 
 		if (added_skip) {
@@ -184,6 +209,8 @@
 		}
 		url.searchParams.set('order_by', order_by);
 		url.searchParams.set('direction', direction);
+		url.searchParams.set('has_score', show_has_score);
+
 		if (last_n_days !== "all") {
 			url.searchParams.set('last_n_days', last_n_days);
 		}

@@ -30,6 +30,9 @@ class Database:
                 """
             )
 
+    def get_users(self):
+        return self.tweets.group_by_users()
+
     def get_all(self,
                 since_id=None,
                 has_score=None,
@@ -40,8 +43,9 @@ class Database:
                 direction=None,
                 model_version=None,
                 last_n_days=None,
-                conversation_id=None
-                ) -> List[Tweet]:
+                conversation_id=None,
+                screen_name=None,
+            ) -> List[Tweet]:
         return self.tweets.get_all(
             since_id=since_id,
             has_score=has_score,
@@ -53,6 +57,7 @@ class Database:
             model_version=model_version,
             last_n_days=last_n_days,
             conversation_id=conversation_id,
+            screen_name=screen_name,
         )
 
     def get_metadata_key(self, key):

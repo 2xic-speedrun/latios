@@ -16,6 +16,8 @@ class DataWorker:
                      direction=None,
                      last_n_days=None,
                      conversation_id=None,
+                     screen_name=None,
+                     has_score=None,
         ):
         since_id = self.database.get_metadata_key(
             self.last_viewed_timeline_tweet)
@@ -23,10 +25,12 @@ class DataWorker:
             since_id=since_id,
             skip=skip,
             first=first,
+            has_score=has_score,
             order_by=order_by,
             direction=direction,
             last_n_days=last_n_days,
             conversation_id=conversation_id,
+            screen_name=screen_name,
         )
 
     def update_timeline(self):

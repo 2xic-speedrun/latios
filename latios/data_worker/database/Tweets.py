@@ -22,15 +22,16 @@ class Tweets:
                     predicted_score REAL nullable, 
                     model_version int nullable,
                     added_timestamp text nullable,
-                    conversation_id INTEGER nullable
+                    conversation_id INTEGER nullable,
+                    screen_name varchar nullable
                 );
                 """
             )
-        #with self.database.connection() as con:
-        #    cur = con.cursor()
-        #    cur.execute("ALTER TABLE tweets add column conversation_id INTEGER nullable;")
+       # with self.database.connection() as con:
+       #     cur = con.cursor()
+       #     cur.execute("ALTER TABLE tweets add column screen_name varchar nullable;")
 
-    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None, last_n_days=None, conversation_id=None) -> List[Tweet]:
+    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None, last_n_days=None, conversation_id=None, screen_name=None) -> List[Tweet]:
         with self.database.connection() as con:
             cur = con.cursor()
             query = SimpleQueryBuilder().select(
@@ -64,6 +65,11 @@ class Tweets:
                 query.and_where(
                     "conversation_id = ?",
                     conversation_id, 
+                )
+            if screen_name is not None:
+                query.and_where(
+                    "screen_name = ?",
+                    screen_name, 
                 )
 
             if model_version is not None:
@@ -136,7 +142,24 @@ class Tweets:
 
             if results is None:
                 cur.execute(
-                    'INSERT INTO tweets (id, json, added_timestamp, conversation_id) values (?, ?, datetime(\'now\'), ?)', (
-                        tweet.id, json.dumps(tweet.json), tweet.conversation_id,
+                    'INSERT INTO tweets (id, json, added_timestamp, conversation_id, screen_name) values (?, ?, datetime(\'now\'), ?, ?)', (
+                        tweet.id, json.dumps(tweet.json), tweet.conversation_id, tweet.username,
                     )
                 )
+
+    def group_by_users(self):
+        with self.database.connection() as con:
+            cur = con.cursor()
+            sql = [
+                "SELECT screen_name, sum(predicted_score) as \"sum_predicted_score\", sum(score) as \"sum_score\" from tweets",
+                "where screen_name is not null",
+                "group by screen_name",
+                "order by sum_predicted_score desc",
+                "limit 100"
+            ]
+            sql = " ".join(sql)
+          #  print(sql)
+            rows = cur.execute(sql, ())
+            results = rows.fetchall()
+         #   print(dict(results[0]))
+            return list(map(dict, results))

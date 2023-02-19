@@ -51,6 +51,11 @@ def timeline():
     direction = request.args.get('direction', "DESC")
     last_n_days = request.args.get('last_n_days', None)
     conversation_id = request.args.get('conversation_id', None)
+    screen_name = request.args.get('screen_name', None)
+    has_score = request.args.get('has_score', None)
+
+    if has_score is not None:
+        has_score = has_score == "true"
 
     data_worker = DataWorker(
         Database(current_app.config["DB_NAME"]),
@@ -63,6 +68,8 @@ def timeline():
         direction,
         last_n_days,
         conversation_id,
+        screen_name,
+        has_score=has_score,
     ))
 
 
@@ -74,3 +81,8 @@ def feedback():
         is_good=feedback["is_good"]
     )
     return "OK"
+
+@tweet_blueprint.route('/users', methods=['GET'])
+def users():
+    users = Database(current_app.config["DB_NAME"]).get_users()
+    return json.dumps(users)
