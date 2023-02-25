@@ -57,7 +57,9 @@ def fetch():
             metadata = GiveMeTheMetadata().get_metadata(link.url)
             if metadata is None:
                 continue
+            print("Scoring site ...")
             score = model(metadata["text"])
+            print(score)
             submit_score(
                 id=link.id,
                 title=metadata.get("title", None),

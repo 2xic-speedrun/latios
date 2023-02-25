@@ -58,7 +58,7 @@ class SimpleQueryBuilder:
 
         final_query += "\n"
         if len(self.updates) == 0:
-            final_query += f"order by {self.order_by_field}"
+            final_query += f"order by {self.order_by_field} NULLS LAST"
 
             if len(self.row_limit):
                 final_query += "\n" 

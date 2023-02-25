@@ -8,20 +8,21 @@ link_blueprint = Blueprint('links', __name__)
 
 
 @link_blueprint.route('/links')
-def fetch():
+def links():
     skip = int(request.args.get('skip', 0))
     first = int(request.args.get('first', 10))
     order_by = request.args.get('order_by', "id")
     direction = request.args.get("direction", "desc")
-
+    last_n_days = request.args.get('last_n_days', None)
+    
     database = Database(current_app.config["DB_NAME"])
     links = database.links.get_all(
         first=first,
         skip=skip,
         order_by=order_by,
-        direction=direction
+        direction=direction,
+        last_n_days=last_n_days
     )
-    print(links)
 
     return json.dumps(
         list(map(lambda x: map_dict(x), links))
@@ -30,11 +31,12 @@ def fetch():
 @link_blueprint.route('/save_url', methods=["POST"])
 def save_url():
     url = request.args.get('url', None)
+    source = request.args.get('source', None)
     assert url is not None
     return jsonify(map_dict(Database(current_app.config["DB_NAME"]).save_url(
-        url
+        url,
+        source=source
     )))
-
 
 @link_blueprint.route('/save_url_payload', methods=["POST"])
 def save_url_payload():

@@ -4,5 +4,5 @@ from ..helpers.Metadata import Metadata
 
 class Html(ABC):
 	@abstractmethod
-	def fetch_text(self, url) -> Union[Metadata, None]:
+	def fetch_metadata(self, url) -> Union[Metadata, None]:
 		pass

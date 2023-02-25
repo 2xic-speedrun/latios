@@ -3,13 +3,17 @@ import requests
 
 class CheckContentType:
     def has_valid_header(self, url):
-        response = requests.head(url)
-        has_valid_content_type = self.check_content_type(
-            response.headers.get('Content-Type', None))
-        has_valid_content_disposition = response.headers.get(
-            'Content-Disposition', None) is None
+        try:
+            response = requests.head(url, timeout=5)
+            has_valid_content_type = self.check_content_type(
+                response.headers.get('Content-Type', None))
+            has_valid_content_disposition = response.headers.get(
+                'Content-Disposition', None) is None
 
-        return has_valid_content_type and has_valid_content_disposition
+            return has_valid_content_type and has_valid_content_disposition
+        except Exception as e:
+            print(e)
+            return False
 
     def check_content_type(self, content_type):
         valid_types = ['text', 'html']

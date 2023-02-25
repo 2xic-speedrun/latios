@@ -45,7 +45,29 @@
                 </div>
             </div>
         </div>
-    </div>
+        <div class="col-sm">
+            <div class="form-group">
+                <b>Days back</b>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="last_n_days" value="1">
+                    <label class="form-check-label">
+                        1 day
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="last_n_days" value="7">
+                    <label class="form-check-label">
+                        7 days
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="last_n_days" value="all">
+                    <label class="form-check-label">
+                        All
+                    </label>
+                </div>
+            </div>
+        </div>
     </div>
     {% for link in links %}
     <div class="card mb-8" style="margin-top: 5px; margin-bottom: 5px; padding-bottom: 5px; padding-top: 5px;">
@@ -75,8 +97,8 @@
 
     {% endfor %}
     <div class="col-md-12 text-center">
-        <button type="button" class="btn btn-outline-primary" onclick="prev_page()">Prev tweets</button>
-        <button type="button" class="btn btn-outline-primary" onclick="next_page()">Next tweets</button>
+        <button type="button" class="btn btn-outline-primary" onclick="prev_page()">Prev links</button>
+        <button type="button" class="btn btn-outline-primary" onclick="next_page()">Next links</button>
     </div>
 
 </body>
@@ -92,6 +114,10 @@
             name: "direction",
             defaultValue: "desc"
         });
+		set_radio_button({
+			name: "last_n_days",
+			defaultValue: "1"
+		});
     };
 
     async function set_radio_button({ name, defaultValue }) {
@@ -115,6 +141,7 @@
         const order_by = document.querySelector('input[name="order_by"]:checked').value;
         const direction = document.querySelector('input[name="direction"]:checked').value;
         const skip = url.searchParams.get("skip");
+		const last_n_days = document.querySelector('input[name="last_n_days"]:checked').value;
 
         if (added_skip) {
             if (skip) {
@@ -125,6 +152,10 @@
         }
         url.searchParams.set('order_by', order_by);
         url.searchParams.set('direction', direction);
+
+        if (last_n_days !== "all") {
+			url.searchParams.set('last_n_days', last_n_days);
+		}
 
         window.location = url.href;
     }

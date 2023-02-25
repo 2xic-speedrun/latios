@@ -3,10 +3,12 @@ from ..shared.Tweet import Tweet
 from flask import Flask, render_template, request, url_for, flash, redirect
 from ..shared.Config import DATA_WORKER_HOST
 from ..shared.Link import Link
+from ..shared.Model import Model
 
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/"
 app = Flask(__name__, template_folder='template')
 
+model = Model.load()
 
 def get_url_text(url):
     return requests.get(DATA_WORKER_URL + f"link_text?url={url}").text
@@ -47,12 +49,13 @@ def get_tweets(
 def get_links(
     skip,
     first,
-    order_by
+    order_by,
+    last_n_days,
+    direction
 ):
     url = DATA_WORKER_URL + "links?" + \
-        f"skip={skip}&first={first}&order_by={order_by}"
+        f"skip={skip}&first={first}&order_by={order_by}&last_n_days={last_n_days}&direction={direction}"
     return list(list(map(lambda x: Link(**x), requests.get(url).json())))
-
 
 @app.route('/')
 def tweets():
@@ -72,8 +75,16 @@ def links():
     skip = int(request.args.get('skip', 0))
     first = int(request.args.get('first', 10))
     order_by = request.args.get('order_by', "id")
+    direction = request.args.get("direction", "desc")
+    last_n_days = request.args.get('last_n_days', 1)
 
-    return render_template(path, links=get_links(skip=skip, first=first, order_by=order_by))
+    return render_template(path, links=get_links(
+        skip=skip, 
+        first=first, 
+        order_by=order_by,
+        direction=direction,
+        last_n_days=last_n_days,
+    ))
 
 @app.route('/link_text')
 def link_text():
@@ -82,9 +93,18 @@ def link_text():
 
     batch_size = 128
 
-    return "<br><br>".join([
-        " ".join(words[i:i+batch_size]) for i in range(0, len(words), batch_size)    
-    ])
+    text = [
+        " ".join(words[i:i+batch_size]) 
+        for i in range(0, len(words), batch_size)    
+    ]
+    text_score = [
+        (i, model(i), ("green" if model(i) > 0.7 else "red")) for i in text
+    ]
+
+    return "<br>".join(
+        f"<p style=\"color: {color} \">{text} ({score})</p>" 
+        for (text, score, color) in text_score
+    )
 
 @app.route('/conversation')
 def conversation():

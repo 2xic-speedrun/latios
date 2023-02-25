@@ -18,7 +18,8 @@ class Links:
                     score int nullable, 
                     predicted_score REAL nullable,
                     model_version int nullable,
-                    netloc text nullable
+                    netloc text nullable,
+                    added_timestamp text nullable
                 );
                 """
             )
@@ -27,17 +28,14 @@ class Links:
             cur = con.cursor()
             try:
                 cur.execute(
-                    "ALTER TABLE links add column title text nullable;"
-                )
-                cur.execute(
-                    "ALTER TABLE links add column netloc text nullable;"
+                    "ALTER TABLE links add column added_timestamp text nullable;"
                 )
             except Exception as e:
                 print(e)
                 pass
         """
         
-    def get_all(self, first=None, skip=None, order_by=None, direction=None):
+    def get_all(self, first=None, skip=None, order_by=None, direction=None, last_n_days=None):
         with self.database.connection() as con:
             cur = con.cursor()
             query = SimpleQueryBuilder().select(
@@ -47,8 +45,19 @@ class Links:
                 query.limit(first)
             if skip is not None:
                 query.skip(skip)
+
+            if last_n_days is not None:
+                assert type(last_n_days) == int or last_n_days.isnumeric()
+                query.and_where(
+                    # last two days of links
+                    f"date('now', '-{last_n_days} days') <= DATETIME(added_timestamp)",
+                )
+
             if order_by is not None:
+                #if order_by == "predicted_score":
+                #    query.and_where("predicted_score is not null")
                 query.order_by(order_by, direction)
+            print(str(query))
 
             all = cur.execute(
                 str(query),
@@ -66,7 +75,7 @@ class Links:
                 return found[0]                
             else:
                 cur.execute(
-                    'INSERT INTO links (url) values (?)', (
+                    'INSERT INTO links (url, added_timestamp) values (?, datetime(\'now\'))', (
                         url,
                     )
                 )

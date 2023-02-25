@@ -4,9 +4,11 @@ import requests
 from bs4 import BeautifulSoup
 from ..helpers.Metadata import Metadata
 from ..helpers.get_netloc import get_netloc
+from urllib.parse import urljoin
+import validators
 
 class HttpHtml(Html):
-    def fetch_text(self, url) -> Union[Metadata, None]:
+    def fetch_metadata(self, url) -> Union[Metadata, None]:
         soup = self._give_me_soup(url)
         if soup is None:
             return None
@@ -14,17 +16,23 @@ class HttpHtml(Html):
         return {
             "text": self._give_me_the_text(soup),
             "title": self._give_me_title(soup),
-            "netloc": get_netloc(url)
+            "netloc": get_netloc(url),
+            "links": self._get_links(soup, url)
         }
 
     def _give_me_soup(self, url):
         try:
-            html = requests.get(url).text
+            response = requests.get(url, timeout=10)
+            print(response.status_code)
+            html = response.text
             soup = BeautifulSoup(html, features="html.parser")
             return soup
         except Exception as e:
             print(e)
             return None
+
+    def _get_links(self, soup, url):
+        return list(filter(lambda x: validators.url(x), list(map(lambda x: str(urljoin(url, x['href'])), soup.find_all("a", href=True)))))
 
     def _give_me_title(self, soup):
         return " ".join(list(map(lambda x: x.text, soup.find_all("title"))))

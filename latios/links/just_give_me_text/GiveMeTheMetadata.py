@@ -31,7 +31,7 @@ class GiveMeTheMetadata:
         if not has_valid_header:
             return None
         
-        return HttpHtml().fetch_text(url)
+        return HttpHtml().fetch_metadata(url)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
