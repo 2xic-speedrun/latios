@@ -3,28 +3,49 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from .Normalizer import Normalizer
 
 class Model:
-    def __init__(self, tf_idf, model) -> None:
+    def __init__(self, tf_idf, model, is_dev=False) -> None:
         self.model = model
         self.tf_idf: TfidfVectorizer = tf_idf
+        self.is_dev = is_dev
+
+    @property
+    def feature_encoder_name(self):
+        name = ""
+        if self.is_dev:
+            name += "dev_"
+        return name + "vectorizer.pk"
+
+    @property
+    def model_name(self):
+        name = ""
+        if self.is_dev:
+            name += "dev_"
+        return name + "model.pk"
 
     def save(self):
-        with open('vectorizer.pk', 'wb') as fp:
+        if self.is_dev:
+            print("Saving dev model")
+        with open(self.feature_encoder_name, 'wb') as fp:
             pickle.dump(self.tf_idf, fp)
-        with open('model.pk', 'wb') as fp:
+        with open(self.model_name, 'wb') as fp:
             pickle.dump(self.model, fp)
 
     @staticmethod
-    def load():
+    def load(is_dev=False):
         tf_idf = None
         model = None
-        with open('vectorizer.pk', 'rb') as fp:
-            tf_idf = pickle.load(fp)
-        with open('model.pk', 'rb') as fp:
-            model = pickle.load(fp)
         return Model(
             tf_idf=tf_idf,
-            model=model
-        )
+            model=model,
+            is_dev=is_dev,
+        )._load()
+    
+    def _load(self):
+        with open(self.feature_encoder_name, 'rb') as fp:
+            self.tf_idf = pickle.load(fp)
+        with open(self.model_name, 'rb') as fp:
+            self.model = pickle.load(fp)
+        return self
     
     def __call__(self, text):
         if type(text) == str:

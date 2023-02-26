@@ -33,7 +33,7 @@ class Database:
     def get_users(self):
         return self.tweets.group_by_users()
 
-    def get_all(self,
+    def get_all_tweets(self,
                 since_id=None,
                 has_score=None,
                 has_predicted_score=None,

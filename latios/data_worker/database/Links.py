@@ -35,7 +35,7 @@ class Links:
                 pass
         """
         
-    def get_all(self, first=None, skip=None, order_by=None, direction=None, last_n_days=None):
+    def get_all(self, first=None, skip=None, order_by=None, direction=None, is_downloaded=None, has_score=None, last_n_days=None):
         with self.database.connection() as con:
             cur = con.cursor()
             query = SimpleQueryBuilder().select(
@@ -51,6 +51,21 @@ class Links:
                 query.and_where(
                     # last two days of links
                     f"date('now', '-{last_n_days} days') <= DATETIME(added_timestamp)",
+                )
+
+            if has_score is not None:
+                if has_score == True:
+                    query.and_where(
+                        f"score is not null"
+                    )
+                else:
+                    query.and_where(
+                        f"score is null"
+                    )
+            
+            if is_downloaded is not None:
+                query.and_where(
+                    f"predicted_score is not null"
                 )
 
             if order_by is not None:

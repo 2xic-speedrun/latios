@@ -22,9 +22,12 @@ class HttpYouTube(YouTube):
             text = " ".join(list(map(lambda x: x["text"], text)))
             title = None
 
-            with YoutubeDL({}) as ydl:
-                obj = ydl.extract_info(url, download=False)
-                title = obj.get("title", None)    
+            try:
+                with YoutubeDL({}) as ydl:
+                    obj = ydl.extract_info(url, download=False)
+                    title = obj.get("title", None)    
+            except Exception as e:
+                print(e)
 
             return {
                 "netloc": get_netloc(url),

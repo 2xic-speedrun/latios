@@ -3,6 +3,8 @@ from .Database import Database
 from ..shared.Config import DB_NAME
 from .routes.tweets import tweet_blueprint
 from .routes.links import link_blueprint
+import json
+from ..shared.Cache import Cache
 
 app = Flask(__name__)
 app.register_blueprint(tweet_blueprint)
@@ -30,6 +32,34 @@ def set_key_value():
         value
     )
     return "OK"
+
+@app.route('/dataset')
+def dataset():
+    INCLUDE_LINKS = bool(request.args.get('INCLUDE_LINKS', False))
+
+    database = Database(current_app.config["DB_NAME"])
+    tweet_dataset = database.get_all_tweets(
+        has_score=True
+    )
+    tweet_dicts = list(map(lambda x: x.__dict__(), tweet_dataset))
+
+    links = database.links.get_all(
+        has_score=True,
+        is_downloaded=True
+    )
+    # TODO: Just make the dataset consistent and move form tweet to text field
+    link_dicts = []
+    if INCLUDE_LINKS:
+        link_dicts = list(map(lambda x: {
+            "tweet": Cache().load(x["url"])["text"],
+            "is_good": x["score"],
+            "is_tweet": False,
+        } if Cache().load(x["url"]) is not None else None, links))
+        link_dicts = list(filter(lambda x: x is not None, link_dicts))
+
+    dataset = tweet_dicts + link_dicts
+
+    return json.dumps(dataset)
 
 if __name__ == "__main__":
     app.config.update({

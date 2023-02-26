@@ -10,16 +10,17 @@ from sklearn import svm
 from .GetDataset import get_dataset
 
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/dataset"
+IS_DEV_MODE = True
 
 def get_split_dataset(**kwargs):
-    X, y = get_dataset()
+    X, y = get_dataset(**kwargs)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.33, random_state=42
     )
 
     options = {
-        "max_features":150,
+        "max_features": 100,
         "input":'content',
         "encoding":'utf-8', 
         "decode_error":'replace', 
@@ -36,9 +37,6 @@ def get_split_dataset(**kwargs):
     )
     norm = Normalizer()
 
- #   print(norm(X_train[0].text), X_train[0].text)
-  #  print(norm(X_train[10].text), X_train[10].text)
-
     X_train = tf_idf.fit_transform(list(map(lambda x: norm(x.text), X_train)))
     X_test = tf_idf.transform(list(map(lambda x: norm(x.text), X_test)))
 
@@ -51,11 +49,17 @@ if __name__ == "__main__":
 
     dataset_configs = [
         {
+            "max_features":75
+        },
+        {
             "max_features":100
         },
         {
             "max_features":150
-        }
+        },
+        {
+            "max_features":100,
+        },
     ]
     for dataset_config in dataset_configs:
         print(dataset_config)
@@ -79,8 +83,10 @@ if __name__ == "__main__":
                 best_tfidf = tf_idf
                 best_model = model
         print("")
+    print(f"Best model accuracy {best_score}")
     Model(
         best_tfidf,
-        best_model
+        best_model,
+        is_dev=IS_DEV_MODE
     ).save()
 

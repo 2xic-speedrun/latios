@@ -15,12 +15,12 @@ class TestingDatabase(unittest.TestCase):
                 "text": "test tweet"
             }
         ))
-        tweets = database.get_all(since_id=0)
+        tweets = database.get_all_tweets(since_id=0)
         assert len(tweets) == 1
         assert tweets[0].id == 10
 
         database.set_tweet_score(10, True)
-        tweets = database.get_all(since_id=0)
+        tweets = database.get_all_tweets(since_id=0)
         assert tweets[0].is_good == True
 
     def test_metadata_set_get(self):
@@ -52,10 +52,10 @@ class TestingDatabase(unittest.TestCase):
                 "text": "test tweet"
             }
         ))
-        tweets = database.get_all()
+        tweets = database.get_all_tweets()
         assert len(tweets) == 1
 
-        tweets = database.get_all(
+        tweets = database.get_all_tweets(
             model_version=Not(-1)
         )
 

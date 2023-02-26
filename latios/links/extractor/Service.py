@@ -36,7 +36,8 @@ def source_extractor():
     last_extracted_at = last_extracted_at["value"]
     last_extracted_at = last_extracted_at if last_extracted_at is not None else 0
 
-    delta = time.time() - last_extracted_at
+    now = time.time()
+    delta = now - last_extracted_at
     if delta < (60 * 60):
         return None
     blacklist = [
@@ -45,7 +46,7 @@ def source_extractor():
         'github'
     ]
     for link in [
-        'https://news.ycombinator.com/best'
+   #     'https://news.ycombinator.com/best'
         'https://old.reddit.com/r/LessWrong/'
     ]:
         metadata = GiveMeTheMetadata().get_metadata(link)
@@ -58,7 +59,8 @@ def source_extractor():
                     break
             else:
                 print((i))
-            requests.post(DATA_WORKER_URL + f"save_url?url={url}")
+#            requests.post(DATA_WORKER_URL + f"save_url?url={url}")
+#    requests.post(DATA_WORKER_URL + f"key_value?key=last_source_feed_extraction&value={now}").text
 
 if __name__ == "__main__":
     """
@@ -73,4 +75,4 @@ if __name__ == "__main__":
     """
 #    source_extractor()
     fetch()
-
+#    time.sleep(10)

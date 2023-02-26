@@ -28,18 +28,10 @@ def set_predicted_score():
 
 @tweet_blueprint.route('/predict_score_queue')
 def predict_score_queue():
-    dataset = Database(current_app.config["DB_NAME"]).get_all(
+    dataset = Database(current_app.config["DB_NAME"]).get_all_tweets(
         #   has_predicted_score=False,
         model_version=Not(MODEL_VERSION),
         first=10
-    )
-    return json.dumps(list(map(lambda x: x.__dict__(), dataset)))
-
-
-@tweet_blueprint.route('/dataset')
-def dataset():
-    dataset = Database(current_app.config["DB_NAME"]).get_all(
-        has_score=True
     )
     return json.dumps(list(map(lambda x: x.__dict__(), dataset)))
 

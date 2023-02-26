@@ -21,7 +21,7 @@ class DataWorker:
         ):
         since_id = self.database.get_metadata_key(
             self.last_viewed_timeline_tweet)
-        return self.database.get_all(
+        return self.database.get_all_tweets(
             since_id=since_id,
             skip=skip,
             first=first,
