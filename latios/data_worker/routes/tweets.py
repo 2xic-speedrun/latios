@@ -74,7 +74,16 @@ def feedback():
     )
     return "OK"
 
-@tweet_blueprint.route('/users', methods=['GET'])
-def users():
-    users = Database(current_app.config["DB_NAME"]).get_users()
+@tweet_blueprint.route('/group_users_by_predicted_score', methods=['GET'])
+def group_users_by_predicted_score():
+    users = Database(current_app.config["DB_NAME"]).get_tweets().group_users_by_field(
+        "predicted_score"
+    )
+    return json.dumps(users)
+
+@tweet_blueprint.route('/group_users_by_score', methods=['GET'])
+def group_users_by_score():
+    users = Database(current_app.config["DB_NAME"]).get_tweets().group_users_by_field(
+        "score"
+    )
     return json.dumps(users)

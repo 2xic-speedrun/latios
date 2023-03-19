@@ -10,6 +10,7 @@ from typing import List
 import time
 import random
 from ...shared.Cache import Cache
+from ...shared.GetDiskSpace import get_free_disk_space_in_gb
 
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/"
 DATA_LINKS = DATA_WORKER_URL + "links"
@@ -48,7 +49,6 @@ def get_batch():
 def fetch():
     links, last_queued = get_batch()
     model = Model.load()
-
     cache = Cache()
 
     for link in links:
@@ -79,4 +79,7 @@ def fetch():
     requests.post(DATA_WORKER_URL + f"key_value?key={LAST_RANKED_OFFSET_KEY}&value={new_id}").text
 
 if __name__ == "__main__":
-    fetch()
+    if get_free_disk_space_in_gb() > 1:
+        fetch()
+    else:
+        print("Not enough free space")

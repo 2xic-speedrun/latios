@@ -9,7 +9,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn import svm
 from .GetDataset import get_dataset
 
-DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/dataset"
+#DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/dataset"
+DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/dataset?INCLUDE_LINKS=True"
 IS_DEV_MODE = True
 
 def get_split_dataset(**kwargs):

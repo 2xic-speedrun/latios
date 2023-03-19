@@ -30,8 +30,8 @@ class Database:
                 """
             )
 
-    def get_users(self):
-        return self.tweets.group_by_users()
+    def get_tweets(self) -> Tweets:
+        return self.tweets
 
     def get_all_tweets(self,
                 since_id=None,

@@ -15,6 +15,7 @@ def load_file(path, is_good):
         for i in file.read().split("\n"):
             if len(i) == 0:
                 continue
+            print((is_good, i))
             url = requests.post(f"{DATA_WORKER_URL}/save_url?url={i}")
             id = url.json()["id"]
             requests.post(f"{DATA_WORKER_URL}/link_feedback", json={
@@ -26,8 +27,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
             prog = 'GiveMeTheMetadata'
     )
-    parser.add_argument('-f', '--file')
-    parser.add_argument('-g', '--is-good', type=bool)
+    parser.add_argument('-f', '--file', required=True)
+    parser.add_argument('-g', '--is-good', type=bool, default=False)
     args = parser.parse_args()
 
+#    print(args.is_good)
     load_file(args.file, args.is_good)

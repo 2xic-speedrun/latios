@@ -117,23 +117,35 @@ def conversation():
 def user():
     path = 'index.html'
     screen_name = request.args.get('screen_name', None)
+    order_by = request.args.get('order_by', "id")
+    direction = request.args.get("direction", "desc")
+    skip = int(request.args.get('skip', 0))
+    first = int(request.args.get('first', 10))
+    last_n_days = request.args.get('last_n_days', 1)
 
     return render_template(path, tweets=get_tweets(
-            skip=0, 
-            first=1_00, 
-            order_by="id", 
-            direction="asc", 
-            last_n_days=None, 
+            skip=skip, 
+            first=first, 
+            order_by=order_by,
+            direction=direction, 
+            last_n_days=last_n_days, 
             conversation_id=None,
             screen_name=screen_name,
         )
     )
 
-@app.route('/users')
-def users():
-    url = DATA_WORKER_URL + "users"
+@app.route('/group_users_by_predicted_score')
+def group_users_by_predicted_score():
+    url = DATA_WORKER_URL + "group_users_by_predicted_score"
     users = requests.get(url).json()
     users = list(map(lambda x: f"<a href=\"/user?screen_name={x['screen_name']}\">{x['screen_name']}</a> sum_predicted_score : {x['sum_predicted_score']}", users))
+    return "<br>".join(users)    
+
+@app.route('/group_users_by_score')
+def group_users_by_score():
+    url = DATA_WORKER_URL + "group_users_by_score"
+    users = requests.get(url).json()
+    users = list(map(lambda x: f"<a href=\"/user?screen_name={x['screen_name']}\">{x['screen_name']}</a> score : {x['sum_score']}", users))
     return "<br>".join(users)    
 
 if __name__ == "__main__":

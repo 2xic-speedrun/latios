@@ -7,7 +7,8 @@ import requests
 import urllib
 import time
 from ..just_give_me_text.GiveMeTheMetadata import GiveMeTheMetadata
-
+from ...shared.GetDiskSpace import get_free_disk_space_in_gb
+import os
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/"
 
 def fetch():
@@ -36,6 +37,11 @@ def source_extractor():
     last_extracted_at = last_extracted_at["value"]
     last_extracted_at = last_extracted_at if last_extracted_at is not None else 0
 
+    path = os.path.join(os.path.dirname(__file__), "crawler.txt")
+    if not os.path.isfile(path):
+        print("No path file found!")
+        return None
+
     now = time.time()
     delta = now - last_extracted_at
     if delta < (60 * 60):
@@ -43,13 +49,18 @@ def source_extractor():
     blacklist = [
         'reddit',
         'ycombinator',
-        'github'
+        'github',
+        'apple.com'
     ]
-    for link in [
-   #     'https://news.ycombinator.com/best'
-        'https://old.reddit.com/r/LessWrong/'
-    ]:
+    links = []
+    with open(path) as file:
+        links = file.read().split("\n")
+
+    for link in links:
+        print(f"Checking {link}")
         metadata = GiveMeTheMetadata().get_metadata(link)
+        if metadata is None:
+            continue
         links = metadata.get('links', None)
         if links is None:
             continue
@@ -59,8 +70,8 @@ def source_extractor():
                     break
             else:
                 print((i))
-#            requests.post(DATA_WORKER_URL + f"save_url?url={url}")
-#    requests.post(DATA_WORKER_URL + f"key_value?key=last_source_feed_extraction&value={now}").text
+                requests.post(DATA_WORKER_URL + f"save_url?url={i}")
+    requests.post(DATA_WORKER_URL + f"key_value?key=last_source_feed_extraction&value={now}").text
 
 if __name__ == "__main__":
     """
@@ -73,6 +84,8 @@ if __name__ == "__main__":
         else:
             break
     """
-#    source_extractor()
-    fetch()
-#    time.sleep(10)
+    if get_free_disk_space_in_gb() > 1:
+        fetch()
+        source_extractor()
+    else:
+        print("Not enough free space")

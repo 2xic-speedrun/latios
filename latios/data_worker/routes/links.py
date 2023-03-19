@@ -14,14 +14,18 @@ def links():
     order_by = request.args.get('order_by', "id")
     direction = request.args.get("direction", "desc")
     last_n_days = request.args.get('last_n_days', None)
-    
+    has_score = request.args.get('has_score', None)
+    if has_score != None:
+        has_score = has_score.lower() == "true"
+
     database = Database(current_app.config["DB_NAME"])
     links = database.links.get_all(
         first=first,
         skip=skip,
         order_by=order_by,
         direction=direction,
-        last_n_days=last_n_days
+        last_n_days=last_n_days,
+        has_score=has_score
     )
 
     return json.dumps(
@@ -88,10 +92,13 @@ def score_url():
 def link_text():
     data = request.args
     url = data.get('url', None)
+    fetch_if_not_found = data.get('fetch_if_not_found', None) == "true"
 
     if url is None:
         return "No url is set"
     results = Cache().load(url)
-    if results is None:
+    if results is None and not fetch_if_not_found:
         return "No url cache found"
+    elif results is None and  fetch_if_not_found:
+        pass
     return results.get("text", None)

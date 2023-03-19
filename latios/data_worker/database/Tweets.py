@@ -147,14 +147,18 @@ class Tweets:
                     )
                 )
 
-    def group_by_users(self):
+    def group_users_by_field(self, field):
+        group_by = "sum_predicted_score"
+        if field != "score":
+            group_by = "sum_score"
+            
         with self.database.connection() as con:
             cur = con.cursor()
             sql = [
                 "SELECT screen_name, sum(predicted_score) as \"sum_predicted_score\", sum(score) as \"sum_score\" from tweets",
                 "where screen_name is not null",
                 "group by screen_name",
-                "order by sum_predicted_score desc",
+                f"order by {group_by} desc",
                 "limit 100"
             ]
             sql = " ".join(sql)
