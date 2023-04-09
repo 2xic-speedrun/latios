@@ -27,9 +27,9 @@ class Tweets:
                 );
                 """
             )
-       # with self.database.connection() as con:
-       #     cur = con.cursor()
-       #     cur.execute("ALTER TABLE tweets add column screen_name varchar nullable;")
+     #   with self.database.connection() as con:
+    #        cur = con.cursor()
+      #      cur.execute("CREATE UNIQUE INDEX tweets_id_index ON tweets(id, model_version);")
 
     def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None, last_n_days=None, conversation_id=None, screen_name=None) -> List[Tweet]:
         with self.database.connection() as con:
