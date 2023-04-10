@@ -45,6 +45,7 @@ class Database:
                 last_n_days=None,
                 conversation_id=None,
                 screen_name=None,
+                min_predicted_score=None,
             ) -> List[Tweet]:
         return self.tweets.get_all(
             since_id=since_id,
@@ -58,6 +59,7 @@ class Database:
             last_n_days=last_n_days,
             conversation_id=conversation_id,
             screen_name=screen_name,
+            min_predicted_score=min_predicted_score,
         )
 
     def get_metadata_key(self, key):

@@ -35,7 +35,7 @@ class Links:
                 pass
         """
         
-    def get_all(self, first=None, skip=None, order_by=None, direction=None, is_downloaded=None, has_score=None, last_n_days=None):
+    def get_all(self, first=None, skip=None, order_by=None, direction=None, is_downloaded=None, has_score=None, last_n_days=None, domain=None, min_predicted_score=None):
         with self.database.connection() as con:
             cur = con.cursor()
             query = SimpleQueryBuilder().select(
@@ -63,15 +63,27 @@ class Links:
                         f"score is null"
                     )
             
-            if is_downloaded is not None:
+            if is_downloaded is not None or min_predicted_score is not None:
                 query.and_where(
                     f"predicted_score is not null"
                 )
+
+            if domain is not None:
+                query.and_where(
+                    f"url like '%{domain}%'"
+                )
+            
+            if min_predicted_score is not None:
+                query.and_where(
+                    f"predicted_score > {min_predicted_score}"
+                )
+
 
             if order_by is not None:
                 #if order_by == "predicted_score":
                 #    query.and_where("predicted_score is not null")
                 query.order_by(order_by, direction)
+
             print(str(query))
 
             all = cur.execute(

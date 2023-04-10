@@ -45,6 +45,7 @@ def timeline():
     conversation_id = request.args.get('conversation_id', None)
     screen_name = request.args.get('screen_name', None)
     has_score = request.args.get('has_score', None)
+    min_predicted_score = request.args.get('min_predicted_score', None)
 
     if has_score is not None:
         has_score = has_score == "true"
@@ -62,8 +63,8 @@ def timeline():
         conversation_id,
         screen_name,
         has_score=has_score,
+        min_predicted_score=min_predicted_score,
     ))
-
 
 @tweet_blueprint.route('/feedback', methods=['POST'])
 def feedback():

@@ -1,7 +1,7 @@
 import json
 
 class Tweet:
-    def __init__(self, tweet_object, is_good=None):
+    def __init__(self, tweet_object, is_good=None, predicted_score=None):
         self.json = tweet_object
         self.id = self.json['id']
         self.text = self.json["text"]
@@ -39,6 +39,8 @@ class Tweet:
                 "<a href=\"{link}\">{link}</a>".format(link=expanded_url)
             )
 
+        self.predicted_score = predicted_score
+
     def urls(self):
         return list(map(lambda i: (i["url"], i["expanded_url"]), self.entities.get("urls", [])))    
 
@@ -49,6 +51,7 @@ class Tweet:
         return {
             "tweet": self.json,
             "is_good": self.is_good,
+            "predicted_score": self.predicted_score,
         }
 
     def __repr__(self) -> str:

@@ -15,6 +15,8 @@ def links():
     direction = request.args.get("direction", "desc")
     last_n_days = request.args.get('last_n_days', None)
     has_score = request.args.get('has_score', None)
+    domain = request.args.get('domain', None)
+    min_predicted_score = request.args.get('min_predicted_score', None)
     if has_score != None:
         has_score = has_score.lower() == "true"
 
@@ -25,7 +27,9 @@ def links():
         order_by=order_by,
         direction=direction,
         last_n_days=last_n_days,
-        has_score=has_score
+        has_score=has_score,
+        domain=domain,
+        min_predicted_score=min_predicted_score,
     )
 
     return json.dumps(

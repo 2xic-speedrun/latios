@@ -106,6 +106,12 @@
 						</div>
 					</div>
 				</div>
+				<div class="col-sm">
+					<div class="form-group">
+						<b>Minimum predicted score</b>
+						<input name="min_predicted_score" value="0.5"/>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -118,6 +124,7 @@
 				</div>
 				<div class="col-md-8">
 					<div class="card-body">
+						<p>Score: {{ tweet.predicted_score }}</p>
 						<p>
 							<a href="{{ tweet.tweet_url }}">Link to Twitter</a>
 						</p>
@@ -174,11 +181,16 @@
 			name: "last_n_days",
 			defaultValue: "1"
 		});
+		set_input_field({
+			name: "min_predicted_score",
+			defaultValue: "0.5"
+		})
 	};
 
 	async function set_radio_button({ name, defaultValue }) {
 		const url = new URL(window.location.href);
 		const value = url.searchParams.get(name);
+
 		if (value) {
 			document.querySelector(`input[name="${name}"][ value="${value}"]`).checked = true
 		} else {
@@ -192,6 +204,21 @@
 		})
 	}
 
+	async function set_input_field({name, defaultValue}){
+		const url = new URL(window.location.href);
+		const value = url.searchParams.get(name);
+
+		if (value) {
+			document.querySelector(`input[name="${name}"]`).value = value;
+		} else {
+			document.querySelector(`input[name="${name}"]`).value = defaultValue;
+		}
+
+		document.getElementsByName(name)[0].addEventListener('blur', () => {
+			set_url_args();
+		})
+	}
+
 	async function set_url_args(added_skip = 0) {
 		const url = new URL(window.location.href);
 		const order_by = document.querySelector('input[name="order_by"]:checked').value;
@@ -199,6 +226,7 @@
 		const last_n_days = document.querySelector('input[name="last_n_days"]:checked').value;
 		const show_has_score = document.querySelector('input[name="has_score"]:checked').value;
 		const skip = url.searchParams.get("skip");
+		const min_predicted_score = document.querySelector('input[name="min_predicted_score"]').value;
 
 		if (added_skip) {
 			if (skip) {
@@ -207,9 +235,15 @@
 				url.searchParams.append('skip', 10);
 			}
 		}
+
 		url.searchParams.set('order_by', order_by);
 		url.searchParams.set('direction', direction);
 		url.searchParams.set('has_score', show_has_score);
+		if (min_predicted_score.length){
+			url.searchParams.set('min_predicted_score', min_predicted_score);
+		} else {
+            url.searchParams.delete("min_predicted_score")
+        }
 
 		if (last_n_days !== "all") {
 			url.searchParams.set('last_n_days', last_n_days);

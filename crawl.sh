@@ -1,5 +1,5 @@
-python3 -m latios.links.FeedbackFromFile --file ./feedback/good.txt --is-good true
-python3 -m latios.links.FeedbackFromFile --file ./feedback/bad.txt
+#python3 -m latios.links.FeedbackFromFile --file ./feedback/good.txt --is-good true
+#python3 -m latios.links.FeedbackFromFile --file ./feedback/bad.txt
 
 while true; do
     python3 -m latios.links.extractor.Service;

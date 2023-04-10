@@ -31,7 +31,7 @@ class Tweets:
     #        cur = con.cursor()
       #      cur.execute("CREATE UNIQUE INDEX tweets_id_index ON tweets(id, model_version);")
 
-    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None, last_n_days=None, conversation_id=None, screen_name=None) -> List[Tweet]:
+    def get_all(self, since_id=None, has_score=None, has_predicted_score=None, first=None, skip=None, order_by=None, direction=None, model_version=None, last_n_days=None, conversation_id=None, screen_name=None, min_predicted_score=None) -> List[Tweet]:
         with self.database.connection() as con:
             cur = con.cursor()
             query = SimpleQueryBuilder().select(
@@ -60,6 +60,14 @@ class Tweets:
                     query.and_where(
                         f"predicted_score is null"
                     )
+
+            if min_predicted_score is not None:
+                query.and_where(
+                    f"predicted_score is not null"
+                )
+                query.and_where(
+                    f"predicted_score > {min_predicted_score}"
+                )
 
             if conversation_id is not None:
                 query.and_where(
@@ -111,7 +119,7 @@ class Tweets:
             ).fetchall()
 
             return list(map(lambda tweet: Tweet(
-                tweet_object=json.loads(tweet['json']), is_good=tweet['score']), all)
+                tweet_object=json.loads(tweet['json']), is_good=tweet['score'], predicted_score=tweet["predicted_score"]), all)
             )
 
     def set_tweet_predicted_score(self, id, score):

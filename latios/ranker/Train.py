@@ -60,6 +60,15 @@ if __name__ == "__main__":
                 "feature_normalizer": Normalizer,
             },
         ],
+        "tf_idf raw": [
+            {
+                "feature_encoder":{
+                    "max_features":100,
+                    "encoder": TfidfVectorizer,
+                },
+                "feature_normalizer": None,
+            },
+        ],
         "open_ai":[
             {
                 "feature_encoder":{

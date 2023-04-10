@@ -21,7 +21,8 @@ def get_tweets(
     conversation_id=None,
     direction=None,
     screen_name=None,
-    has_score=None
+    has_score=None,
+    min_predicted_score=None
 ):
     """
         TODO: Use a cleaner url builder.
@@ -43,18 +44,27 @@ def get_tweets(
     if has_score is not None:
         url += f"&has_score={has_score}"
 
-    return list(map(lambda x: Tweet(x["tweet"], x['is_good']), requests.get(url).json()))
+    if min_predicted_score is not None:
+        url += f"&min_predicted_score={min_predicted_score}"
 
+    return list(map(lambda x: Tweet(x["tweet"], x['is_good'], x["predicted_score"]), requests.get(url).json()))
 
 def get_links(
     skip,
     first,
     order_by,
     last_n_days,
-    direction
+    direction,
+    min_predicted_score=None,
+    domain=None,
 ):
     url = DATA_WORKER_URL + "links?" + \
         f"skip={skip}&first={first}&order_by={order_by}&last_n_days={last_n_days}&direction={direction}"
+    if min_predicted_score is not None:
+        url += f"&min_predicted_score={min_predicted_score}"
+    if domain is not None:
+        url += f"&domain={domain}"
+
     return list(list(map(lambda x: Link(**x), requests.get(url).json())))
 
 @app.route('/')
@@ -65,8 +75,9 @@ def tweets():
     order_by = request.args.get('order_by', "predicted_score")
     last_n_days = request.args.get('last_n_days', 1)
     has_score = request.args.get('has_score', False)
+    min_predicted_score = request.args.get('min_predicted_score', None)
 
-    return render_template(path, tweets=get_tweets(skip=skip, first=first, order_by=order_by, last_n_days=last_n_days, has_score=has_score))
+    return render_template(path, tweets=get_tweets(skip=skip, first=first, order_by=order_by, last_n_days=last_n_days, has_score=has_score, min_predicted_score=min_predicted_score))
 
 
 @app.route('/links')
@@ -78,12 +89,17 @@ def links():
     direction = request.args.get("direction", "desc")
     last_n_days = request.args.get('last_n_days', 1)
 
+    min_predicted_score = request.args.get('min_predicted_score', None)
+    domain = request.args.get('domain', None)
+
     return render_template(path, links=get_links(
         skip=skip, 
         first=first, 
         order_by=order_by,
         direction=direction,
         last_n_days=last_n_days,
+        min_predicted_score=min_predicted_score,
+        domain=domain,
     ))
 
 @app.route('/link_text')

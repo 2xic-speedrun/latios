@@ -18,6 +18,7 @@ class DataWorker:
                      conversation_id=None,
                      screen_name=None,
                      has_score=None,
+                     min_predicted_score=None,
         ):
         since_id = self.database.get_metadata_key(
             self.last_viewed_timeline_tweet)
@@ -31,6 +32,7 @@ class DataWorker:
             last_n_days=last_n_days,
             conversation_id=conversation_id,
             screen_name=screen_name,
+            min_predicted_score=min_predicted_score,
         )
 
     def update_timeline(self):
