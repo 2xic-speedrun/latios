@@ -85,7 +85,7 @@ def links():
     path = 'links.html'
     skip = int(request.args.get('skip', 0))
     first = int(request.args.get('first', 10))
-    order_by = request.args.get('order_by', "id")
+    order_by = request.args.get('order_by', "predicted_score")
     direction = request.args.get("direction", "desc")
     last_n_days = request.args.get('last_n_days', 1)
 
@@ -94,7 +94,7 @@ def links():
 
     return render_template(path, links=get_links(
         skip=skip, 
-        first=first, 
+        first=first,
         order_by=order_by,
         direction=direction,
         last_n_days=last_n_days,

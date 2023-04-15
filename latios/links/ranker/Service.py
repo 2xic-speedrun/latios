@@ -18,7 +18,7 @@ SUBMIT_DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/save_link_with_id"
 LAST_RANKED_OFFSET_KEY = "last_ranked_link_offset"
 
 def submit_score(id, score, title, netloc, description):
-    requests.post(SUBMIT_DATA_WORKER_URL, json=[
+    response = requests.post(SUBMIT_DATA_WORKER_URL, json=[
         {
             "id": id,
             "predicted_score": float(score),
@@ -27,27 +27,39 @@ def submit_score(id, score, title, netloc, description):
             "description": description
         }
     ])
+    print(response.text)
 
 
+def get_links(query_args):
+    url = DATA_LINKS + query_args
+    print(url)
+    links = requests.get(url).json()
+    links: List[Link] = list(map(lambda x: Link(**x), links))
+    return links
+    
 def get_batch():
     last_queued = requests.get(DATA_WORKER_URL + f"key_value?key={LAST_RANKED_OFFSET_KEY}").json()
     last_queued = last_queued["value"]
     if last_queued is None:
         last_queued = 0
 
-    links = requests.get(
-        DATA_LINKS + f"?skip={last_queued}&order_by=id&direction=asc").json()
-    links: List[Link] = list(map(lambda x: Link(**x), links))
-   
+    links = get_links(f"?skip={last_queued}&order_by=id&direction=asc")
+    fresh_links = get_links(f"?order_by=id&direction=desc&has_predicted_score=false")
+    new_id = last_queued + len(links)
+
+    links += fresh_links
+    
     print(f"Ranking links from id :{last_queued}")
+    print(len(links))
 
     return (
         links,
-        last_queued
+        last_queued,
+        new_id
     )
 
 def fetch():
-    links, last_queued = get_batch()
+    links, last_queued, new_id = get_batch()
     model = Model.load()
     cache = Cache()
 
@@ -75,7 +87,6 @@ def fetch():
         except Exception as e:
             print(e)
 
-    new_id = last_queued + len(links)
     requests.post(DATA_WORKER_URL + f"key_value?key={LAST_RANKED_OFFSET_KEY}&value={new_id}").text
 
 if __name__ == "__main__":

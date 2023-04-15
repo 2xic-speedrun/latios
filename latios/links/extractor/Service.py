@@ -44,7 +44,9 @@ def source_extractor():
 
     now = time.time()
     delta = now - last_extracted_at
-    if delta < (60 * 60):
+    one_hour = 60 * 60
+    one_day = one_hour * 24
+    if delta < one_day:
         return None
     blacklist = [
         'reddit',
@@ -57,6 +59,8 @@ def source_extractor():
         links = file.read().split("\n")
 
     for link in links:
+        if len(link) == 0:
+            continue
         print(f"Checking {link}")
         metadata = GiveMeTheMetadata().get_metadata(link)
         if metadata is None:

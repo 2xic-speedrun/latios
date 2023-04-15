@@ -35,7 +35,7 @@ class Links:
                 pass
         """
         
-    def get_all(self, first=None, skip=None, order_by=None, direction=None, is_downloaded=None, has_score=None, last_n_days=None, domain=None, min_predicted_score=None):
+    def get_all(self, first=None, skip=None, order_by=None, direction=None, is_downloaded=None, has_score=None, last_n_days=None, domain=None, min_predicted_score=None, has_predicted_score=None):
         with self.database.connection() as con:
             cur = con.cursor()
             query = SimpleQueryBuilder().select(
@@ -50,7 +50,7 @@ class Links:
                 assert type(last_n_days) == int or last_n_days.isnumeric()
                 query.and_where(
                     # last two days of links
-                    f"date('now', '-{last_n_days} days') <= DATETIME(added_timestamp)",
+                    f"date('now', '-{last_n_days} days') <= DATETIME(ifnull(added_timestamp, date('now', '-90 days')))"
                 )
 
             if has_score is not None:
@@ -62,7 +62,17 @@ class Links:
                     query.and_where(
                         f"score is null"
                     )
-            
+
+            if has_predicted_score is not None:
+                if has_predicted_score == True:
+                    query.and_where(
+                        f"predicted_score is not null"
+                    )
+                else:
+                    query.and_where(
+                        f"predicted_score is null"
+                    )
+
             if is_downloaded is not None or min_predicted_score is not None:
                 query.and_where(
                     f"predicted_score is not null"
@@ -142,4 +152,5 @@ class Links:
                 'id = ?',
                 id
             )
+            print(str(update), update.args)
             cur.execute(str(update), update.args)

@@ -15,10 +15,15 @@ def links():
     direction = request.args.get("direction", "desc")
     last_n_days = request.args.get('last_n_days', None)
     has_score = request.args.get('has_score', None)
+    has_predicted_score = request.args.get('has_predicted_score', None)
     domain = request.args.get('domain', None)
     min_predicted_score = request.args.get('min_predicted_score', None)
+
     if has_score != None:
         has_score = has_score.lower() == "true"
+
+    if has_predicted_score != None:
+        has_predicted_score = has_predicted_score.lower() == "true"
 
     database = Database(current_app.config["DB_NAME"])
     links = database.links.get_all(
@@ -30,6 +35,7 @@ def links():
         has_score=has_score,
         domain=domain,
         min_predicted_score=min_predicted_score,
+        has_predicted_score=has_predicted_score,
     )
 
     return json.dumps(
@@ -64,7 +70,7 @@ def predict_score_url():
     data = json.loads(request.data)
     for entry in data:
         id = entry.get('id', None)
-        predicted_score = entry.get('score', None)
+        predicted_score = entry.get('predicted_score', None)
         title = entry.get('title', None)
         netloc = entry.get('netloc', None)
         description = entry.get('description', None)
@@ -88,7 +94,8 @@ def score_url():
     assert type(id) != None
 
     Database(current_app.config["DB_NAME"]).set_link_score(
-        id, score
+        id, 
+        score
     )
     return "OK"
 
