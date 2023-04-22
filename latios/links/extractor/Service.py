@@ -58,16 +58,14 @@ def source_extractor():
     with open(path) as file:
         links = file.read().split("\n")
 
-    for link in links:
+    for link in list(set(links)):
         if len(link) == 0:
             continue
         print(f"Checking {link}")
         metadata = GiveMeTheMetadata().get_metadata(link)
         if metadata is None:
             continue
-        links = metadata.get('links', None)
-        if links is None:
-            continue
+        links = metadata.get('links', [])
         for i in links:
             for j in blacklist:
                 if j in i:
@@ -77,19 +75,22 @@ def source_extractor():
                 requests.post(DATA_WORKER_URL + f"save_url?url={i}")
     requests.post(DATA_WORKER_URL + f"key_value?key=last_source_feed_extraction&value={now}").text
 
+def source_seed():
+    path = os.path.join(os.path.dirname(__file__), "seed.txt")
+    if not os.path.isfile(path):
+        print("No path file found!")
+        return None
+    links = []
+    with open(path) as file:
+        links = file.read().split("\n")
+    for link in list(set(links)):
+        url = urllib.parse.quote(link, safe='')
+        requests.post(DATA_WORKER_URL + f"save_url?url={url}")
+
 if __name__ == "__main__":
-    """
-    has_new = True
-    last_id = None
-    while has_new:
-        new_id = fetch()
-        if last_id != new_id:
-            last_id = new_id
-        else:
-            break
-    """
     if get_free_disk_space_in_gb() > 1:
         fetch()
         source_extractor()
+        source_seed()
     else:
         print("Not enough free space")

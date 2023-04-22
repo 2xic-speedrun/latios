@@ -9,6 +9,7 @@ class Link:
         self.description = kwargs.get("description", None)
         self.title = kwargs.get("title", None)
         self.text = kwargs.get("text", None)
+        self.category_id = kwargs.get("category_id", None)
 
         self.is_good = self.score
 

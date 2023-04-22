@@ -77,8 +77,8 @@ class Database:
     def save_tweet(self, tweet: Tweet):
         return self.tweets.save_tweet(tweet)
 
-    def save_url(self, url, source=None):
-        results = self.links.save_url(url)
+    def save_url(self, url, source=None, category_id=None):
+        results = self.links.save_url(url, category_id=category_id)
         if source is not None:
             self.link_relation.save(
                 targetLinkId=results['id'],
@@ -86,13 +86,14 @@ class Database:
             )
         return results
 
-    def save_link_with_id(self, id, predicted_score=None, netloc=None, title=None, description=None):
+    def save_link_with_id(self, id, predicted_score=None, netloc=None, title=None, description=None, category_id=None):
         return self.links.save_link_with_id(
             id=id,
             predicted_score=predicted_score,
             netloc=netloc,
             title=title,
             description=description,
+            category_id=category_id,
         )
 
     def set_link_predicted_score(self, id, score):

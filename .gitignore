@@ -10,3 +10,7 @@ seed
 .debug.txt
 crawler.txt
 bad.txt
+seed.txt
+results.json
+crawl_categories.sh
+categories

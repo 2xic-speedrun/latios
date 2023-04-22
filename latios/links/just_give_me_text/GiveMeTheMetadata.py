@@ -3,6 +3,7 @@ from .CheckContentType import CheckContentType
 import argparse
 from .html.HttpHtml import HttpHtml
 from .youtube.HttpYouTube import HttpYouTube
+from .documents.DocumentsParser import DocumentParser
 
 class GiveMeTheMetadata:
     def __init__(self):
@@ -21,9 +22,11 @@ class GiveMeTheMetadata:
                 return None
             return datasource(url)
 
-        if ".pdf" in skip_links:
+        if ".pdf" in url:
+            return DocumentParser().process(url)
+        elif ".zip" in url:
             return None
-        elif ".zip" in skip_links:
+        elif ".tar" in url:
             return None
 
         has_valid_header = CheckContentType().has_valid_header(url)

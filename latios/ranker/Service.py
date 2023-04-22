@@ -23,19 +23,24 @@ def submit_score(id, score):
 
 if __name__ == "__main__":
     start = 0
+    ONE_HOUR = 60 * 60
 
     while True:
-        if 60 * 60 < (time.time() - start):
-            new_tweets_count = fetch_more_tweets()
-            print(f"Fetched {new_tweets_count} new tweets")
-            start  = time.time()
+        try:
+            if ONE_HOUR < (time.time() - start):
+                new_tweets_count = fetch_more_tweets()
+                print(f"Fetched {new_tweets_count} new tweets")
+                start  = time.time()
 
-        tweets = list(map(lambda x: Tweet(x["tweet"], x['is_good']), requests.get(DATA_WORKER_URL).json()))
-        count = len(tweets)
-        print(f"Scoring {count} tweets")
-        for i in tweets:
-            score = model(i.text)
-            print(i.id)
-            submit_score(i.id, score)
+            tweets = list(map(lambda x: Tweet(x["tweet"], x['is_good']), requests.get(DATA_WORKER_URL).json()))
+            count = len(tweets)
+            print(f"Scoring {count} tweets")
+            for i in tweets:
+                score = model(i.text)
+                print(i.id)
+                submit_score(i.id, score)
 
-        time.sleep(30)
+            time.sleep(30)
+        except Exception as e:
+            print(e)
+            time.sleep(ONE_HOUR)

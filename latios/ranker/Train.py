@@ -12,13 +12,14 @@ from .DataPipeline import DataPipeline
 from .features.OpenAiEmbeddings import OpenAiEmbeddings
 import matplotlib.pyplot as plt
 import os
+import json
+import datetime
 
 #DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/dataset"
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/dataset?INCLUDE_LINKS=True"
-IS_DEV_MODE = True
+IS_DEV_MODE = False
 
-
-if __name__ == "__main__":
+def get_best_model():
     X, y = get_dataset()
 
     X_train_original, X_test_original, y_train_original, y_test_original = train_test_split(
@@ -27,7 +28,7 @@ if __name__ == "__main__":
 
     best_model = None
     best_tfidf = None
-    best_score = 0
+    best_accuracy = 0
 
     model_pipeline_configs = {
         "tf_idf": [
@@ -76,6 +77,7 @@ if __name__ == "__main__":
                     "model": "text-embedding-ada-002"
                 },
                 "feature_normalizer": Normalizer,
+                "storable": False,
             }
         ],
         "open_ai_raw": [
@@ -85,6 +87,7 @@ if __name__ == "__main__":
                     "model": "text-embedding-ada-002",
                 },
                 "feature_normalizer": None,
+                "storable": False,
             }
         ]
     }
@@ -111,20 +114,17 @@ if __name__ == "__main__":
                 accuracy = accuracy_score(y_test, list(map(lambda x: min(max(round(x), 0), 1), model.predict(X_test))))
                 print(f"{model.__class__.__name__} -> accuracy: {accuracy}")
 
-                if best_score < accuracy:
-                    best_score = accuracy
-                    best_tfidf = tf_idf
-                    best_model = model
+                if dataset_config.get("storable", True):
+                    assert isinstance(tf_idf, TfidfVectorizer)
+                    if best_accuracy < accuracy:
+                        best_accuracy = accuracy
+                        best_tfidf = tf_idf
+                        best_model = model
                 best_local_config_score = max(best_local_config_score, (accuracy * 100))
                 best_local_config_string = f"{model.__class__.__name__} + {base_config_name}"
             print("")
         results[best_local_config_string] = best_local_config_score
-    print(f"Best model accuracy {best_score}")
-    Model(
-        best_tfidf,
-        best_model,
-        is_dev=IS_DEV_MODE
-    ).save()
+    print(f"Best model accuracy {best_accuracy}")
 
     config_name = list(results.keys())
     values = list(results.values())
@@ -139,3 +139,36 @@ if __name__ == "__main__":
         "ResultsRankerTrain.png"
     )
     plt.savefig(path)
+    return (
+        best_tfidf, best_model, best_accuracy
+    )
+
+def save_if_model_is_improved():
+    (best_tfidf, best_model, best_accuracy) = get_best_model()
+    results_file = "results.json" if not IS_DEV_MODE else "results_dev.json"
+    results_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        results_file
+    )
+    current_best_accuracy = 0
+    if os.path.isfile(results_file):
+        with open(results_file, "r") as file:
+            current_best_accuracy = json.loads(file.read())["accuracy"]
+    
+    if current_best_accuracy < best_accuracy and not IS_DEV_MODE:
+        print("Stored new improved model")
+        Model(
+            best_tfidf,
+            best_model,
+            is_dev=IS_DEV_MODE
+        ).save()
+        with open(results_file, "w") as file:
+            file.write(
+                json.dumps({
+                    "accuracy": best_accuracy,
+                    "trained": datetime.datetime.now().isoformat()
+                })
+            )
+
+if __name__ == "__main__":
+    save_if_model_is_improved()

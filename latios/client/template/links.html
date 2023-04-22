@@ -71,13 +71,19 @@
         <div class="col-sm">
             <div class="form-group">
                 <b>Minimum predicted score</b>
-                <input name="min_predicted_score" value="0.5"/>
+                <input name="min_predicted_score" value="0.5" />
             </div>
         </div>
         <div class="col-sm">
             <div class="form-group">
                 <b>Domain</b>
-                <input name="domain" value=""/>
+                <input name="domain" value="" />
+            </div>
+        </div>
+        <div class="col-sm">
+            <div class="form-group">
+                <b>Category id</b>
+                <input name="category_id" value="" />
             </div>
         </div>
     </div>
@@ -128,18 +134,22 @@
             name: "direction",
             defaultValue: "desc"
         });
-		set_radio_button({
-			name: "last_n_days",
-			defaultValue: "1"
-		});
+        set_radio_button({
+            name: "last_n_days",
+            defaultValue: "1"
+        });
         set_input_field({
-			name: "min_predicted_score",
-			defaultValue: ""
-		})
+            name: "min_predicted_score",
+            defaultValue: ""
+        })
         set_input_field({
-			name: "domain",
-			defaultValue: ""
-		})
+            name: "domain",
+            defaultValue: ""
+        })
+        set_input_field({
+            name: "category_id",
+            defaultValue: ""
+        })
     };
 
     async function set_radio_button({ name, defaultValue }) {
@@ -159,29 +169,30 @@
     }
 
 
-	async function set_input_field({name, defaultValue}){
-		const url = new URL(window.location.href);
-		const value = url.searchParams.get(name);
+    async function set_input_field({ name, defaultValue }) {
+        const url = new URL(window.location.href);
+        const value = url.searchParams.get(name);
 
-		if (value) {
-			document.querySelector(`input[name="${name}"]`).value = value;
-		} else {
-			document.querySelector(`input[name="${name}"]`).value = defaultValue;
-		}
+        if (value) {
+            document.querySelector(`input[name="${name}"]`).value = value;
+        } else {
+            document.querySelector(`input[name="${name}"]`).value = defaultValue;
+        }
 
-		document.getElementsByName(name)[0].addEventListener('blur', () => {
-			set_url_args();
-		})
-	}
+        document.getElementsByName(name)[0].addEventListener('blur', () => {
+            set_url_args();
+        })
+    }
 
     async function set_url_args(added_skip = 0) {
         const url = new URL(window.location.href);
         const order_by = document.querySelector('input[name="order_by"]:checked').value;
         const direction = document.querySelector('input[name="direction"]:checked').value;
         const skip = url.searchParams.get("skip");
-		const last_n_days = document.querySelector('input[name="last_n_days"]:checked').value;
-		const min_predicted_score = document.querySelector('input[name="min_predicted_score"]').value;
-		const domain = document.querySelector('input[name="domain"]').value;
+        const last_n_days = document.querySelector('input[name="last_n_days"]:checked').value;
+        const min_predicted_score = document.querySelector('input[name="min_predicted_score"]').value;
+        const domain = document.querySelector('input[name="domain"]').value;
+        const category_id = document.querySelector('input[name="category_id"]').value;
 
         if (added_skip) {
             if (skip) {
@@ -192,19 +203,23 @@
         }
         url.searchParams.set('order_by', order_by);
         url.searchParams.set('direction', direction);
-        if (domain.length){
+        if (domain.length) {
             url.searchParams.set('domain', domain);
         }
 
-        if (min_predicted_score.length){
-			url.searchParams.set('min_predicted_score', min_predicted_score);
-		} else {
+        if (min_predicted_score.length) {
+            url.searchParams.set('min_predicted_score', min_predicted_score);
+        } else {
             url.searchParams.delete("min_predicted_score")
         }
 
         if (last_n_days !== "all") {
-			url.searchParams.set('last_n_days', last_n_days);
-		}
+            url.searchParams.set('last_n_days', last_n_days);
+        }
+
+        if (category_id.length) {
+            url.searchParams.set('category_id', category_id);
+        }
 
         window.location = url.href;
     }

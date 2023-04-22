@@ -18,6 +18,7 @@ def links():
     has_predicted_score = request.args.get('has_predicted_score', None)
     domain = request.args.get('domain', None)
     min_predicted_score = request.args.get('min_predicted_score', None)
+    category_id = request.args.get('category_id', None)
 
     if has_score != None:
         has_score = has_score.lower() == "true"
@@ -36,6 +37,7 @@ def links():
         domain=domain,
         min_predicted_score=min_predicted_score,
         has_predicted_score=has_predicted_score,
+        category_id=category_id,
     )
 
     return json.dumps(
@@ -46,10 +48,12 @@ def links():
 def save_url():
     url = request.args.get('url', None)
     source = request.args.get('source', None)
+    category_id = request.args.get('category_id', None)
     assert url is not None
     return jsonify(map_dict(Database(current_app.config["DB_NAME"]).save_url(
         url,
-        source=source
+        source=source,
+        category_id=category_id
     )))
 
 @link_blueprint.route('/save_url_payload', methods=["POST"])
@@ -74,6 +78,7 @@ def predict_score_url():
         title = entry.get('title', None)
         netloc = entry.get('netloc', None)
         description = entry.get('description', None)
+        category_id = request.args.get('category_id', None)
         assert id is not None
         Database(current_app.config["DB_NAME"]).save_link_with_id(
             id=id,
@@ -81,6 +86,7 @@ def predict_score_url():
             title=title,
             netloc=netloc,
             description=description,
+            category_id=category_id
         )
     return "OK"
 

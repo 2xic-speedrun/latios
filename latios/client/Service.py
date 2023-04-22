@@ -22,7 +22,8 @@ def get_tweets(
     direction=None,
     screen_name=None,
     has_score=None,
-    min_predicted_score=None
+    min_predicted_score=None,
+    category_id=None
 ):
     """
         TODO: Use a cleaner url builder.
@@ -57,13 +58,19 @@ def get_links(
     direction,
     min_predicted_score=None,
     domain=None,
+    category_id=None,
 ):
     url = DATA_WORKER_URL + "links?" + \
         f"skip={skip}&first={first}&order_by={order_by}&last_n_days={last_n_days}&direction={direction}"
+
     if min_predicted_score is not None:
         url += f"&min_predicted_score={min_predicted_score}"
+
     if domain is not None:
         url += f"&domain={domain}"
+
+    if category_id is not None:
+        url += f"&category_id={category_id}"
 
     return list(list(map(lambda x: Link(**x), requests.get(url).json())))
 
@@ -91,6 +98,7 @@ def links():
 
     min_predicted_score = request.args.get('min_predicted_score', None)
     domain = request.args.get('domain', None)
+    category_id = request.args.get('category_id', None)
 
     return render_template(path, links=get_links(
         skip=skip, 
@@ -100,6 +108,7 @@ def links():
         last_n_days=last_n_days,
         min_predicted_score=min_predicted_score,
         domain=domain,
+        category_id=category_id,
     ))
 
 @app.route('/link_text')

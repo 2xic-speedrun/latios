@@ -19,7 +19,8 @@ class Links:
                     predicted_score REAL nullable,
                     model_version int nullable,
                     netloc text nullable,
-                    added_timestamp text nullable
+                    added_timestamp text nullable,
+                    category_id int nullable
                 );
                 """
             )
@@ -28,14 +29,13 @@ class Links:
             cur = con.cursor()
             try:
                 cur.execute(
-                    "ALTER TABLE links add column added_timestamp text nullable;"
+                    "ALTER TABLE links add column category_id int nullable;"
                 )
             except Exception as e:
                 print(e)
                 pass
         """
-        
-    def get_all(self, first=None, skip=None, order_by=None, direction=None, is_downloaded=None, has_score=None, last_n_days=None, domain=None, min_predicted_score=None, has_predicted_score=None):
+    def get_all(self, first=None, skip=None, order_by=None, direction=None, is_downloaded=None, has_score=None, last_n_days=None, domain=None, min_predicted_score=None, has_predicted_score=None, category_id=None):
         with self.database.connection() as con:
             cur = con.cursor()
             query = SimpleQueryBuilder().select(
@@ -88,6 +88,10 @@ class Links:
                     f"predicted_score > {min_predicted_score}"
                 )
 
+            if category_id is not None:
+                query.and_where(
+                    f"category_id = {category_id}"
+                )
 
             if order_by is not None:
                 #if order_by == "predicted_score":
@@ -103,7 +107,7 @@ class Links:
 
             return all
 
-    def save_url(self, url):
+    def save_url(self, url, category_id=None):
         url = urllib.parse.unquote(url)
         with self.database.connection() as con:
             cur = con.cursor()
@@ -112,8 +116,8 @@ class Links:
                 return found[0]                
             else:
                 cur.execute(
-                    'INSERT INTO links (url, added_timestamp) values (?, datetime(\'now\'))', (
-                        url,
+                    'INSERT INTO links (url, added_timestamp, category_id) values (?, datetime(\'now\'), ?)', (
+                        url, category_id,
                     )
                 )
             found = cur.execute("SELECT * from links where url = ?", (url, )).fetchall()
@@ -139,7 +143,7 @@ class Links:
                 )
             )
 
-    def save_link_with_id(self, id, netloc=None, predicted_score=None, title=None, description=None):
+    def save_link_with_id(self, id, netloc=None, predicted_score=None, title=None, description=None, category_id=None):
         with self.database.connection() as con:
             cur = con.cursor()
             update = SimpleQueryBuilder()
@@ -148,6 +152,7 @@ class Links:
             update.set_value_if_not_none("title", title)
             update.set_value_if_not_none("predicted_score", predicted_score)
             update.set_value_if_not_none("description", description)
+            update.set_value_if_not_none("category_id", category_id)
             update.and_where(
                 'id = ?',
                 id
