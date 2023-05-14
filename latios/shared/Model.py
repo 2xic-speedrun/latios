@@ -46,11 +46,17 @@ class Model:
         with open(self.model_name, 'rb') as fp:
             self.model = pickle.load(fp)
         return self
+
+    def _get_embedding(self, text):
+        assert type(text) == str
+        text = Normalizer()(text)
+        transformed = self.tf_idf.transform([text])
+        return transformed
     
     def __call__(self, text):
         if type(text) == str:
-            text = Normalizer()(text)
-            transformed = self.tf_idf.transform([text])
+            transformed = self._get_embedding(text)
             return self.model.predict(transformed)[0]
         else:
             raise Exception("Not handled")
+    

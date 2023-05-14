@@ -72,12 +72,12 @@ class Tweets:
             if conversation_id is not None:
                 query.and_where(
                     "conversation_id = ?",
-                    conversation_id, 
+                    conversation_id,
                 )
             if screen_name is not None:
                 query.and_where(
                     "screen_name = ?",
-                    screen_name, 
+                    screen_name,
                 )
 
             if model_version is not None:
@@ -122,6 +122,19 @@ class Tweets:
                 tweet_object=json.loads(tweet['json']), is_good=tweet['score'], predicted_score=tweet["predicted_score"]), all)
             )
 
+    def get_by_id(self, id):
+        with self.database.connection() as con:
+            cur = con.cursor()
+            all = cur.execute(
+                'SELECT * from tweets where id = ?',
+                (
+                    id,
+                )
+            ).fetchall()
+            return list(map(lambda tweet: Tweet(
+                tweet_object=json.loads(tweet['json']), is_good=tweet['score'], predicted_score=tweet["predicted_score"]), all)
+            )
+
     def set_tweet_predicted_score(self, id, score):
         with self.database.connection() as con:
             cur = con.cursor()
@@ -151,7 +164,8 @@ class Tweets:
             if results is None:
                 cur.execute(
                     'INSERT INTO tweets (id, json, added_timestamp, conversation_id, screen_name) values (?, ?, datetime(\'now\'), ?, ?)', (
-                        tweet.id, json.dumps(tweet.json), tweet.conversation_id, tweet.username,
+                        tweet.id, json.dumps(
+                            tweet.json), tweet.conversation_id, tweet.username,
                     )
                 )
 
@@ -159,7 +173,7 @@ class Tweets:
         group_by = "sum_predicted_score"
         if field != "score":
             group_by = "sum_score"
-            
+
         with self.database.connection() as con:
             cur = con.cursor()
             sql = [

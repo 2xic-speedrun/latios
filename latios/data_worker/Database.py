@@ -32,7 +32,7 @@ class Database:
 
     def get_tweets(self) -> Tweets:
         return self.tweets
-
+    
     def get_all_tweets(self,
                 since_id=None,
                 has_score=None,

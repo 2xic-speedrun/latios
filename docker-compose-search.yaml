@@ -1,0 +1,14 @@
+# Thank you https://stackoverflow.com/questions/75604897/how-to-enable-redis-search-and-redis-json-on-redis-stack-docker-image
+version: '3.8'
+services:
+  cache:
+    image: redis/redis-stack-server:latest
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --loadmodule /opt/redis-stack/lib/redisearch.so --save 20 1 --loglevel warning  --protected-mode no
+    volumes: 
+      - cache:/data
+volumes:
+  cache:
+    driver: local

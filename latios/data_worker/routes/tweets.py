@@ -35,6 +35,14 @@ def predict_score_queue():
     )
     return json.dumps(list(map(lambda x: x.__dict__(), dataset)))
 
+@tweet_blueprint.route('/tweet/<id>')
+def get_by_id(id):
+    print(id)
+    dataset = Database(current_app.config["DB_NAME"]).tweets.get_by_id(
+        id=id
+    )
+    return json.dumps(list(map(lambda x: x.__dict__(), dataset)))
+
 @tweet_blueprint.route('/')
 def timeline():
     skip = int(request.args.get('skip', 0))
