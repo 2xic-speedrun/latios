@@ -3,6 +3,7 @@ from ..shared.Config import DATA_WORKER_HOST
 from ..shared.Tweet import Tweet
 from .Redis import Redis
 import numpy as np
+from .Chroma import Chroma
 
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/"
 
@@ -25,18 +26,14 @@ def fetch_more_tweets(first=50):
     return new_id
 
 if __name__ == "__main__":
-    redis = Redis()
-    """
-    tweets = fetch_more_tweets(first=1_000)
-    redis.fit(
-        list(map(lambda x: x.text, tweets))
-    )
-    """
+#    vector_db = Redis()
+    vector_db = Chroma()
+
     for i in fetch_more_tweets():
         #i = np.random.rand(128).astype(np.float32).tobytes()
         #print(i)
-        redis.add_tweet(i)
+        vector_db.add_tweet(i)
         print(i.id)
-        for i in redis.get_sim(i).docs:
+        for i in vector_db.get_sim(i):
             print(f"\t{i.id}")
 

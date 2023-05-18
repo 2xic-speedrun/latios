@@ -40,4 +40,4 @@ class Redis:
         q = Query("*=>[KNN 3 @v $vec]").return_field("__v_score").dialect(2)
         return self.r.ft().search(q, query_params={
             "vec": embedding
-        })
+        }).docs
