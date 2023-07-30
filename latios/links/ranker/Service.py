@@ -1,5 +1,5 @@
 """
-Extracts links from tweets
+Scores links
 """
 from ...shared.Config import DATA_WORKER_HOST
 import requests
@@ -11,6 +11,7 @@ import time
 import random
 from ...shared.Cache import Cache
 from ...shared.GetDiskSpace import get_free_disk_space_in_gb
+import time
 
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/"
 DATA_LINKS = DATA_WORKER_URL + "links"
@@ -88,9 +89,14 @@ def fetch():
             print(e)
 
     requests.post(DATA_WORKER_URL + f"key_value?key={LAST_RANKED_OFFSET_KEY}&value={new_id}").text
-
+    print("Updated")
+    
 if __name__ == "__main__":
-    if get_free_disk_space_in_gb() > 1:
-        fetch()
-    else:
-        print("Not enough free space")
+    while True:
+        if get_free_disk_space_in_gb() > 1:
+            fetch()
+        else:
+            print("Not enough free space")
+            exit(0)
+        print("Sleeping")
+        time.sleep(30)

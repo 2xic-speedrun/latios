@@ -9,6 +9,7 @@ import time
 from ..just_give_me_text.GiveMeTheMetadata import GiveMeTheMetadata
 from ...shared.GetDiskSpace import get_free_disk_space_in_gb
 import os
+
 DATA_WORKER_URL = f"http://{DATA_WORKER_HOST}:8081/"
 
 def fetch():
@@ -88,9 +89,13 @@ def source_seed():
         requests.post(DATA_WORKER_URL + f"save_url?url={url}")
 
 if __name__ == "__main__":
-    if get_free_disk_space_in_gb() > 1:
-        fetch()
-        source_extractor()
-        source_seed()
-    else:
-        print("Not enough free space")
+    while True:
+        if get_free_disk_space_in_gb() > 1:
+            #fetch()
+            source_extractor()
+            source_seed()
+        else:
+            print("Not enough free space")
+            exit(0)
+        print("Sleeping")
+        time.sleep(3600 * 24)

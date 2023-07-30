@@ -41,7 +41,7 @@ class HttpYouTube(YouTube):
         parsed_url = urlparse(url)
         video_ids = parse_qs(parsed_url.query).get("v")
 
-        if len(video_ids) == 0:
+        if video_ids is None or len(video_ids) == 0:
             return None
 
         video_id = video_ids[0]

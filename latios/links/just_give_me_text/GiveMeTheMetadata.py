@@ -26,6 +26,8 @@ class GiveMeTheMetadata:
             return DocumentParser().process(url)
         elif ".zip" in url:
             return None
+        elif ".tgz" in url:
+            return None
         elif ".tar" in url:
             return None
 
