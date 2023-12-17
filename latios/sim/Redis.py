@@ -1,5 +1,5 @@
 """
-Experimental
+Experimental redis database for vectors
 """
 import redis
 from redis.commands.search.field import VectorField
@@ -7,15 +7,11 @@ from redis.commands.search.query import Query
 from ..shared.Model import Model
 from ..shared.Tweet import Tweet
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
 from typing import List
 
 class Redis:
     def __init__(self) -> None:
         self.r = redis.Redis(host='localhost', port=6379)
-        #self.embedding = TfidfVectorizer(
-        #    max_features=16
-        #)
         self.model = Model.load()
         try:
             schema = VectorField("v", "HNSW", {

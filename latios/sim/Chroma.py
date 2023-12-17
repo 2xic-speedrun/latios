@@ -11,14 +11,12 @@ class Chroma:
         self.model = Model.load()
         self.collection = self.client.create_collection(name="my_collection")
 
-
     def fit(self, tweets: List[Tweet]):
         #self.embedding.fit(tweets)
         pass
 
     def add_tweet(self, tweet: Tweet):
         embedding = self.model._get_embedding(tweet.text).astype(np.float32).toarray().tolist()[0]
-        print(embedding)
         self.collection.add(
             embeddings=[
                 embedding

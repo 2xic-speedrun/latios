@@ -54,6 +54,7 @@ def dataset():
             "tweet": Cache().load(x["url"])["text"],
             "is_good": x["score"],
             "is_tweet": False,
+            "url": x["url"],
         } if Cache().load(x["url"]) is not None else None, links))
         link_dicts = list(filter(lambda x: x is not None, link_dicts))
 

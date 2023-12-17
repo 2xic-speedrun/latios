@@ -54,6 +54,7 @@ def source_extractor():
         'ycombinator',
         'github',
         'apple.com'
+        
     ]
     links = []
     with open(path) as file:
@@ -77,6 +78,7 @@ def source_extractor():
     requests.post(DATA_WORKER_URL + f"key_value?key=last_source_feed_extraction&value={now}").text
 
 def source_seed():
+    # source just add links
     path = os.path.join(os.path.dirname(__file__), "seed.txt")
     if not os.path.isfile(path):
         print("No path file found!")

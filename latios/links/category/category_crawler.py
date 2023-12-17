@@ -25,7 +25,7 @@ def store_connected_links(url):
     save_url(url)
     if metadata is None:
         return None 
-    for i in metadata["links"]:
+    for i in metadata.get("links", []):
         response = save_url(i)  
         print(response)
     time.sleep(3)

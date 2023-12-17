@@ -4,6 +4,9 @@ import argparse
 from .html.HttpHtml import HttpHtml
 from .youtube.HttpYouTube import HttpYouTube
 from .documents.DocumentsParser import DocumentParser
+import requests
+from bs4 import BeautifulSoup
+from .helpers.get_netloc import get_netloc
 
 class GiveMeTheMetadata:
     def __init__(self):
@@ -30,9 +33,26 @@ class GiveMeTheMetadata:
             return None
         elif ".tar" in url:
             return None
+        elif url.endswith("feed.xml"):
+            html_page = requests.get(url, headers={
+                "User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15"
+            })
+            soup = BeautifulSoup(html_page.text, "lxml")
+            links = []
+            for item in soup.find_all("item"):
+                link= str(item)
+                i = link.find("<link/>")
+                j = link.find("<guid")
+                links.append( link[i+7:j] )        
+            return {
+                "text": None,
+                "title": "feed.xml",
+                "netloc": get_netloc(url),
+                "links": links
+            }
+
 
         has_valid_header = CheckContentType().has_valid_header(url)
-
         if not has_valid_header:
             return None
         

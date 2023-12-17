@@ -32,6 +32,7 @@ class HttpYouTube(YouTube):
             return {
                 "netloc": get_netloc(url),
                 "title": title,
+                "links": [],
                 "text": text,
             }
         except Exception as e:

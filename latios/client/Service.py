@@ -76,6 +76,7 @@ def get_links(
 
 @app.route('/')
 def tweets():
+    """
     path = 'index.html'
     skip = int(request.args.get('skip', 0))
     first = int(request.args.get('first', 10))
@@ -85,7 +86,8 @@ def tweets():
     min_predicted_score = request.args.get('min_predicted_score', None)
 
     return render_template(path, tweets=get_tweets(skip=skip, first=first, order_by=order_by, last_n_days=last_n_days, has_score=has_score, min_predicted_score=min_predicted_score))
-
+    """
+    return "Tweets are no longer supported because of Twitter api changes."
 
 @app.route('/links')
 def links():

@@ -21,27 +21,35 @@ class DocumentParser:
             exist_ok=True
         )
         if not os.path.isfile(path):
-            urllib.request.urlretrieve(
-                url, 
-                path
-            )
+            try:
+                urllib.request.urlretrieve(
+                    url, 
+                    path
+                )
+            except Exception as e:
+                print(e)
+                return None
         PDFFile = open(path,'rb')
         PDF = PyPDF2.PdfReader(PDFFile)
         pages = len(PDF.pages)
         key = '/Annots'
         uri = '/URI'
         ank = '/A'
-
+        
         links = []
         for page in range(pages):
-            pageSliced = PDF.pages[page]
-            pageObject = pageSliced.get_object()
-            if key in pageObject.keys():
-                ann = pageObject[key]
-                for a in ann:
-                    u = a.get_object()
-                    if uri in u[ank].keys():
-                        links.append(u[ank][uri])
+            try:
+                pageSliced = PDF.pages[page]
+                pageObject = pageSliced.get_object()
+                if key in pageObject.keys():
+                    ann = pageObject[key]
+                    for a in ann:
+                        u = a.get_object()
+                        if uri in u[ank].keys():
+                            links.append(u[ank][uri])
+            except Exception as e:
+                print(e)
+                
 
         os.system("pdftotext {} {}".format(
                 path, path.replace(".pdf", ".txt")
